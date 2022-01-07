@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+prop.txt
+/prop.txt
