@@ -30,7 +30,9 @@ public class SoundCommandReceiver extends BroadcastReceiver {
                 // 3. gui
                 mainActivity.writeInCommandGui(intent, context);
                 // 4. ack: notif reception: send reception notif intent to dc
-                mainActivity.sendBroadcast(mainActivity.buildIntentForReceptionNotifToDC());
+                //todo washere washere disable for this step, and enable when the step is ok
+                // mainActivity.sendBroadcast(mainActivity.buildIntentForReceptionNotifToDC());
+
                 //todo washere  see https://developer.android.com/training/snackbar/showing
                 // use CoordinatorLayout
 //                Snackbar.make(null,"The reception notification was sent to DC.",

@@ -50,8 +50,7 @@ public class MainActivity extends AppCompatActivity {
     String soundCommandFromX = "";
 
     SoundCommandReceiver soundCommandReceiver = null;
-    IntentFilter intentFilter = null;
-
+    //IntentFilter intentFilter = null;
     TextView textViewCommand = null;
     EditText editTextResults = null;
 
@@ -84,7 +83,8 @@ public class MainActivity extends AppCompatActivity {
 
         soundCommandReceiver = new SoundCommandReceiver();
         soundCommandReceiver.mainActivityObject = this;
-        intentFilter.addAction(SOUND_COMMAND_INTENT_ACTION);
+        IntentFilter intentFilter = new IntentFilter(SOUND_COMMAND_INTENT_ACTION);
+        //intentFilter.addAction(SOUND_COMMAND_INTENT_ACTION);
         registerReceiver(soundCommandReceiver,intentFilter);
     }
 
