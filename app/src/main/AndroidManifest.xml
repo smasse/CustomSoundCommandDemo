@@ -16,10 +16,10 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
+            <!--<intent-filter>
                 <action android:name="sm.app.dc.intent.action.SOUND_COMMAND" />
                 <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
+            </intent-filter>-->
         </activity>
     </application>
 
