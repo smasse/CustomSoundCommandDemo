@@ -23,8 +23,19 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
     private static final boolean LOG = true; //todo false in prod
 
-    //todo washere  maybe replace by ACTION_DEVICE_OWNER_CHANGED
-    static final String SOUND_COMMAND_INTENT_ACTION = "sm.app.dc.intent.action.SOUND_COMMAND";
+
+    //static final String SOUND_COMMAND_INTENT_ACTION = "sm.app.dc.intent.action.SOUND_COMMAND";
+    static final String SOUND_COMMAND_INTENT_ACTION = "android.intent.action.ACTION_DEVICE_OWNER_CHANGED";
+    /**
+     * values:
+     * sound-command-from-x-via-dc
+     * sound-command-results-to-dc
+     * sound-command-ack-to-dc
+     */
+    static final String SOUND_COMMAND_INTENT_EXTRA_TYPE = "sm.app.dc.intent.extra.TYPE";
+    static final String SOUND_COMMAND_INTENT_TYPE_FROM_X_VIA_DC = "sound-command-from-x-via-dc";
+    static final String SOUND_COMMAND_INTENT_TYPE_RESULTS_TO_DC = "sound-command-results-to-dc";
+    static final String SOUND_COMMAND_INTENT_TYPE_ACK_TO_DC = "sound-command-ack-to-dc";
     static final String SOUND_COMMAND_INTENT_EXTRA_CMD = "sm.app.dc.intent.extra.SOUND_COMMAND";
     static final String SOUND_COMMAND_INTENT_EXTRA_DATE_STRING =
             "sm.app.dc.intent.extra.SOUND_COMMAND_DATE_STRING";
@@ -35,17 +46,54 @@ public class MainActivity extends AppCompatActivity {
     static final String SOUND_COMMAND_INTENT_EXTRA_APP_ID =
             "sm.app.dc.intent.extra.SOUND_COMMAND_APP_ID";
 
-    //todo washere  maybe replace by ACTION_DEVICE_OWNER_CHANGED
     static final String SOUND_COMMAND_INTENT_ACTION_RESULTS =
-            "sm.app.dc.intent.action.SOUND_COMMAND_RESULTS";
+            "android.intent.action.ACTION_DEVICE_OWNER_CHANGED";
+    //    static final String SOUND_COMMAND_INTENT_ACTION_RESULTS =
+//            "sm.app.dc.intent.action.SOUND_COMMAND_RESULTS";
     static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS =
             "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS";
     static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS =
             "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS_SUCCESS";
 
-    //todo washere  maybe replace by ACTION_DEVICE_OWNER_CHANGED
     static final String SOUND_COMMAND_INTENT_ACTION_RECEPTION_NOTIF =
-            "sm.app.dc.intent.action.SOUND_COMMAND_RECEPTION_NOTIF";
+            "android.intent.action.ACTION_DEVICE_OWNER_CHANGED";
+//    static final String SOUND_COMMAND_INTENT_ACTION_RECEPTION_NOTIF =
+//            "sm.app.dc.intent.action.SOUND_COMMAND_RECEPTION_NOTIF";
+
+    //todo washere  maybe replace by ACTION_DEVICE_OWNER_CHANGED
+//    //static final String SOUND_COMMAND_INTENT_ACTION = "sm.app.dc.intent.action.SOUND_COMMAND";
+//    static final String SOUND_COMMAND_INTENT_ACTION = "android.intent.action.ACTION_DEVICE_OWNER_CHANGED";
+//    /**
+//     * values:
+//     * sound-command-from-x-via-dc
+//     * sound-command-results-to-dc
+//     * sound-command-ack-to-dc
+//     */
+//    static final String SOUND_COMMAND_INTENT_EXTRA_TYPE = "sm.app.dc.intent.extra.TYPE";
+//    static final String SOUND_COMMAND_INTENT_TYPE_FROM_X_VIA_DC = "sound-command-from-x-via-dc";
+//    static final String SOUND_COMMAND_INTENT_TYPE_RESULTS_TO_DC = "sound-command-results-to-dc";
+//    static final String SOUND_COMMAND_INTENT_TYPE_ACK_TO_DC = "sound-command-ack-to-dc";
+//    static final String SOUND_COMMAND_INTENT_EXTRA_CMD = "sm.app.dc.intent.extra.SOUND_COMMAND";
+//    static final String SOUND_COMMAND_INTENT_EXTRA_DATE_STRING =
+//            "sm.app.dc.intent.extra.SOUND_COMMAND_DATE_STRING";
+//    static final String SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS =
+//            "sm.app.dc.intent.extra.SOUND_COMMAND_TIME_MILLIS";
+//    static final String SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID =
+//            "sm.app.dc.intent.extra.SOUND_COMMAND_INSTALLATION_ID";
+//    static final String SOUND_COMMAND_INTENT_EXTRA_APP_ID =
+//            "sm.app.dc.intent.extra.SOUND_COMMAND_APP_ID";
+//
+//    //todo washere  maybe replace by ACTION_DEVICE_OWNER_CHANGED
+//    static final String SOUND_COMMAND_INTENT_ACTION_RESULTS =
+//            "sm.app.dc.intent.action.SOUND_COMMAND_RESULTS";
+//    static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS =
+//            "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS";
+//    static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS =
+//            "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS_SUCCESS";
+//
+//    //todo washere  maybe replace by ACTION_DEVICE_OWNER_CHANGED
+//    static final String SOUND_COMMAND_INTENT_ACTION_RECEPTION_NOTIF =
+//            "sm.app.dc.intent.action.SOUND_COMMAND_RECEPTION_NOTIF";
 
     String soundCommandFromX = "";
 
@@ -100,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setAction(SOUND_COMMAND_INTENT_ACTION_RESULTS);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TYPE,SOUND_COMMAND_INTENT_TYPE_RESULTS_TO_DC);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS,results);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS,success);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_CMD,soundCommandFromX);
@@ -117,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setAction(SOUND_COMMAND_INTENT_ACTION_RECEPTION_NOTIF);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TYPE,SOUND_COMMAND_INTENT_TYPE_ACK_TO_DC);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_CMD,soundCommandFromX);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS,System.currentTimeMillis());
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_DATE_STRING,""+Calendar.getInstance().getTime());
