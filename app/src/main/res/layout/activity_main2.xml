@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:id="@+id/root_sc_main"
+    android:layout_margin="10dip"
+    android:orientation="vertical">
+    <TextView
+        android:id="@+id/top_view_sc_demo_main"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:layout_margin="10dip"
+        android:text="CustomSoundCommandDemo: a demonstration of a third-party application to process sound commands via DC" />
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/layoutForButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="10dip"
+        android:orientation="horizontal"
+        >
+        <Button
+            android:id="@+id/buttonSendSuccess"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_margin="10dip"
+            android:text="Send Success to DC" />
+        <Button
+            android:id="@+id/buttonSendFailure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_margin="10dip"
+            android:text="Send Failure to DC" />
+        <!--       android:textSize="8pt"
+         -->
+    </androidx.appcompat.widget.LinearLayoutCompat>
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/layoutForTexts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="10dip">
+        <TextView
+            android:id="@+id/textViewCommandLabel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="10dip"
+            android:text="The sound command data received via DC:" />
+        <ScrollView
+            android:id="@+id/scroll_sc_demo_data"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dip">
+            <TextView
+                android:id="@+id/textViewCommandData"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="10dip"
+                android:text="" />
+        </ScrollView>
+        <TextView
+            android:id="@+id/textViewResultsLabel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="10dip"
+            android:text="The Automated Execution Results:" />
+        <ScrollView
+            android:id="@+id/scroll_sc_demo_results"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dip">
+            <TextView
+                android:id="@+id/textViewResults"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="10dip"
+                android:text="" />
+        </ScrollView>
+        <TextView
+            android:id="@+id/textViewManualResultsLabel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="10dip"
+            android:text="The Manual Results:" />
+        <EditText
+            android:id="@+id/editTextManualResults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dip"
+            android:minHeight="48dp"
+            android:text=""
+            android:inputType="text"
+            android:maxLines="20"
+            />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</androidx.appcompat.widget.LinearLayoutCompat>
