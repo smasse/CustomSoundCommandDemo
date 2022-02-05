@@ -37,7 +37,6 @@
  */
 package sm.app.sc.customsoundcommanddemo;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -48,14 +47,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Calendar;
@@ -129,59 +125,72 @@ public class MainActivity extends AppCompatActivity {
     Button buttonSendSuccess = null;
     Button buttonSendFailure = null;
     TextView log = null;
+    public static final boolean PROCESS_IMMEDIATELY = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
-        textViewCommandData = findViewById(R.id.textViewCommandData);
-        textViewExecResults = findViewById(R.id.textViewResults);
-        log = findViewById(R.id.cscd_log_tv);
-        editTextManualResults = findViewById(R.id.editTextManualResults);
-        buttonSendSuccess = findViewById(R.id.buttonSendSuccess);
-        buttonSendSuccess.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if (LOG) {
-                        Log.d(TAG, "buttonSendSuccess: onClick, entering...");
-                    }
-                    //todo washere washere use an explicit intent
-                    sendResultsWithExplicitIntent(true);
+        try {
+            setContentView(R.layout.activity_main2);
+            textViewCommandData = findViewById(R.id.textViewCommandData);
+            textViewExecResults = findViewById(R.id.textViewResults);
+            log = findViewById(R.id.cscd_log_tv);
+            editTextManualResults = findViewById(R.id.editTextManualResults);
+            buttonSendSuccess = findViewById(R.id.buttonSendSuccess);
+            buttonSendSuccess.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        if (LOG) {
+                            Log.d(TAG, "buttonSendSuccess: onClick, entering...");
+                        }
+                        //todo washere washere use an explicit intent
+                        sendResultsWithExplicitIntent(true);
 //                    sendBroadcast(buildIntentForResultsToDC(editTextResults.getText().toString(), true));
 //                    //Snackbar.make(null,"The success results were sent to DC.",Snackbar.LENGTH_SHORT).show();
 //                    Toast.makeText(getApplicationContext(),
 //                            "The success results were sent to DC.",
 //                            Toast.LENGTH_SHORT).show();
-                }catch(Throwable e){
-                    StringWriter sw = new StringWriter();
-                    PrintWriter pw = new PrintWriter(sw);
-                    e.printStackTrace(pw);
-                    writeInLog("buttonSendSuccess listener onClick: "+e+"\n"+sw.toString());
-                    Log.e(TAG,"buttonSendSuccess listener onClick: "+e+"\n"+sw.toString());
-                    appendToResults("buttonSendSuccess listener onClick: "+e
-                            +"\n"+sw.toString() );
+                    } catch (Throwable e) {
+                        StringWriter sw = new StringWriter();
+                        PrintWriter pw = new PrintWriter(sw);
+                        e.printStackTrace(pw);
+                        writeInLog("buttonSendSuccess listener onClick: " + e + "\n" + sw.toString());
+                        Log.e(TAG, "buttonSendSuccess listener onClick: " + e + "\n" + sw.toString());
+                        appendToResults("buttonSendSuccess listener onClick: " + e
+                                + "\n" + sw.toString());
+                    }
                 }
-            }
-        });
-        buttonSendFailure = findViewById(R.id.buttonSendFailure);
-        buttonSendFailure.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    sendResultsWithExplicitIntent(false);
-                }catch(Throwable e){
-                    StringWriter sw = new StringWriter();
-                    PrintWriter pw = new PrintWriter(sw);
-                    e.printStackTrace(pw);
-                    Log.e(TAG,"buttonSendFailure listener onClick: "+e+"\n"+sw.toString());
-                    appendToResults("buttonSendFailure listener onClick: "+e
-                            +"\n"+sw.toString() );
+            });
+            buttonSendFailure = findViewById(R.id.buttonSendFailure);
+            buttonSendFailure.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        sendResultsWithExplicitIntent(false);
+                    } catch (Throwable e) {
+                        StringWriter sw = new StringWriter();
+                        PrintWriter pw = new PrintWriter(sw);
+                        e.printStackTrace(pw);
+                        Log.e(TAG, "buttonSendFailure listener onClick: " + e + "\n" + sw.toString());
+                        appendToResults("buttonSendFailure listener onClick: " + e
+                                + "\n" + sw.toString());
+                    }
                 }
+            });
+            //todo washere washere button to manually launch processing of received command
+            if(PROCESS_IMMEDIATELY) {
+                receiveSoundCommandWithExplicitIntent();
             }
-        });
-
-        receiveSoundCommandWithExplicitIntent();
+        }catch(Throwable e){
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            //writeInLog("buttonSendSuccess listener onClick: " + e + "\n" + sw.toString());
+            Log.e(TAG, "buttonSendSuccess listener onClick: " + e + "\n" + sw.toString());
+//            appendToResults("buttonSendSuccess listener onClick: " + e
+//                    + "\n" + sw.toString());
+        }
     }
 
     private void receiveSoundCommandWithExplicitIntent(){
@@ -225,14 +234,16 @@ public class MainActivity extends AppCompatActivity {
                 // use CoordinatorLayout
 //                Snackbar.make(null,"The reception notification was sent to DC.",
 //                        Snackbar.LENGTH_SHORT).show();
-
-                // 5. the big work on bg thread
-                //final BroadcastReceiver.PendingResult pr = goAsync();
-                new Thread() {
-                    public void run() {
-                        processSoundCommandOnBgThread(intentFromDC);
-                    }
-                }.start();
+//todo washere washere button to manually launch processing of received command
+                if(PROCESS_IMMEDIATELY) {
+                    // 5. the big work on bg thread
+                    //final BroadcastReceiver.PendingResult pr = goAsync();
+                    new Thread() {
+                        public void run() {
+                            processSoundCommandOnBgThread(intentFromDC);
+                        }
+                    }.start();
+                }
             }
         }else{
             if(LOG) Log.w(TAG,"onReceive: start without an Intent from DC; " +
@@ -454,45 +465,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //super.onCreateOptionsMenu(menu); TODO use this if we want to also use the menu from parent Seadragon?
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu2, menu);
-        return true; //super.onCreateOptionsMenu(menu);
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        final int id = item.getItemId();
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_test) {
-            try {
-                ComponentName cn = new ComponentName(this, Activity2.class);
-//                ComponentName cn = ComponentName.unflattenFromString(
-//                        "sm.app.dc/.CustomSoundCommandResultsReceiver2");
-                Intent intent = new Intent();
-                //intent.setAction(Intent.ACTION_VIEW);
-                //intent.set(Intent.CATEGORY_DEFAULT);
-                intent.setComponent(cn);
-                startActivity(intent);
-            } catch (Throwable e) {
-                //todo log
-                //Toast.makeText(this,"action_receiver: "+e,Toast.LENGTH_SHORT).show();
-//                if (SPECIAL_LOG_IN_CONSOLE) {
-//                    writeInConsoleByApp("action_receiver anomaly: " + e);
-//                }
-                return false;
-            }
-            return true;
-        }
-        return false;
     }
 
 
