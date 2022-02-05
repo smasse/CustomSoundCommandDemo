@@ -1,3 +1,40 @@
+/*
+ * Copyright (c) 2021 Serge Masse
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ * provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ * and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ * conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ * to endorse or promote products derived from this software without specific prior written
+ * permission.
+ *
+ * 4. This software, as well as products derived from it, must not be used for the purpose of
+ * killing, harming, harassing, or capturing animals.
+ *
+ * 5. This software, as well as products derived from it, must be used with free dolphins, and
+ * must not be used with captive dolphins kept for exploitation, such as for generating revenues
+ * or for research or military purposes; the only ethical use of the app with captive dolphins
+ * would be with dolphins that cannot be set free for their own safety AND are kept in a well-
+ * managed sanctuary or the equivalent.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package sm.app.sc.customsoundcommanddemo;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,7 +46,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,7 +60,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.List;
-
 /**
  * receives intents containing soundCommand String, date-time, dc installation id, ...
  * and sends intents containing results
@@ -89,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
     EditText editTextManualResults = null;
     Button buttonSendSuccess = null;
     Button buttonSendFailure = null;
+    TextView log = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main2);
         textViewCommandData = findViewById(R.id.textViewCommandData);
         textViewExecResults = findViewById(R.id.textViewResults);
+        log = findViewById(R.id.cscd_log_tv);
         editTextManualResults = findViewById(R.id.editTextManualResults);
         buttonSendSuccess = findViewById(R.id.buttonSendSuccess);
         buttonSendSuccess.setOnClickListener(new View.OnClickListener() {
@@ -116,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
                     e.printStackTrace(pw);
+                    writeInLog("buttonSendSuccess listener onClick: "+e+"\n"+sw.toString());
                     Log.e(TAG,"buttonSendSuccess listener onClick: "+e+"\n"+sw.toString());
                     appendToResults("buttonSendSuccess listener onClick: "+e
                             +"\n"+sw.toString() );
@@ -413,4 +455,64 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //super.onCreateOptionsMenu(menu); TODO use this if we want to also use the menu from parent Seadragon?
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu2, menu);
+        return true; //super.onCreateOptionsMenu(menu);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        final int id = item.getItemId();
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_test) {
+            try {
+                ComponentName cn = new ComponentName(this, Activity2.class);
+//                ComponentName cn = ComponentName.unflattenFromString(
+//                        "sm.app.dc/.CustomSoundCommandResultsReceiver2");
+                Intent intent = new Intent();
+                //intent.setAction(Intent.ACTION_VIEW);
+                //intent.set(Intent.CATEGORY_DEFAULT);
+                intent.setComponent(cn);
+                startActivity(intent);
+            } catch (Throwable e) {
+                //todo log
+                //Toast.makeText(this,"action_receiver: "+e,Toast.LENGTH_SHORT).show();
+//                if (SPECIAL_LOG_IN_CONSOLE) {
+//                    writeInConsoleByApp("action_receiver anomaly: " + e);
+//                }
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+
+
+    private void writeInLog(final String text){
+        //DolphinMainActivity.writeLog(text);
+        if(log==null)return;
+        CharSequence l = log.getText();
+        if(l==null) l = "";
+        String s = l.toString()+"\n"+getDateTimePrefixForLog()+": "+text;
+        log.setText(s);
+    }
+    private String getDateTimePrefixForLog() {
+        final Calendar cal = Calendar.getInstance();// TimeZone.getTimeZone("GMT"));
+//        final String millisFormat = AcousticLibConfig.getIt().isShowMillisInTimeInConsoleEnabled()
+//                ? ".SSS" : "";
+        final String millisFormat = "";
+        CharSequence time = DateFormat.format("yyyy-MM-dd hh:mm:ss" + millisFormat,
+                cal.getTimeInMillis());// +" GMT";
+        return time.toString();
+    }
+
 }
