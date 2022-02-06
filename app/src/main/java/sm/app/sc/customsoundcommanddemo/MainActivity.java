@@ -125,7 +125,8 @@ public class MainActivity extends AppCompatActivity {
     Button buttonSendSuccess = null;
     Button buttonSendFailure = null;
     TextView log = null;
-    public static final boolean PROCESS_IMMEDIATELY = false;
+    Button buttonExecute = null;
+    public static final boolean EXECUTE_IMMEDIATELY = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,10 +179,17 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-            //todo washere washere button to manually launch processing of received command
-            if(PROCESS_IMMEDIATELY) {
-                receiveSoundCommandWithExplicitIntent();
-            }
+            buttonExecute = findViewById(R.id.buttonExecute);
+            buttonExecute.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    executeSoundCommand(intentFromDC);
+                }
+            });
+            writeInLog("starting with EXECUTE_IMMEDIATELY = "+ EXECUTE_IMMEDIATELY);
+            //todo washere washere
+            //todo toggle button and a saved preference to enable/disable immediate processing
+            receiveSoundCommandWithExplicitIntent();
         }catch(Throwable e){
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -193,8 +201,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    Intent intentFromDC = null;
+
     private void receiveSoundCommandWithExplicitIntent(){
-        Intent intentFromDC = getIntent();
+        intentFromDC = getIntent();
         String action = intentFromDC.getAction(); //now this is Intent.ACTION_MAIN
         if(Intent.ACTION_MAIN.equals(action)){
             //normal
@@ -203,9 +213,12 @@ public class MainActivity extends AppCompatActivity {
             appendToResults("Intent action is unexpected = {"+action+"}");
         }
         String msgType = intentFromDC.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_TYPE);
+        writeInLog("receiveSoundCommandWithExplicitIntent" +
+                ": entering with msgType = {"+msgType+"}");
         if(SOUND_COMMAND_INTENT_TYPE_FROM_X_VIA_DC.equals(msgType)) {
             if(LOG){
-                Log.d(TAG,"onReceive: entering with valid Intent action");
+                Log.d(TAG,"receiveSoundCommandWithExplicitIntent" +
+                        ": entering with valid Intent action");
             }
             // 1. setup
             //MainActivity mainActivity = (MainActivity)mainActivityObject;
@@ -218,6 +231,8 @@ public class MainActivity extends AppCompatActivity {
 //                return;
 //            }
             String soundCommandFromX = intentFromDC.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_CMD);
+            writeInLog("receiveSoundCommandWithExplicitIntent" +
+                    ": soundCommandFromX = {"+soundCommandFromX+"}");
             if(soundCommandFromX==null||soundCommandFromX.length()==0){
                 // anomaly
                 appendToResults("The received msg does not contain a sound command.");
@@ -235,23 +250,43 @@ public class MainActivity extends AppCompatActivity {
 //                Snackbar.make(null,"The reception notification was sent to DC.",
 //                        Snackbar.LENGTH_SHORT).show();
 //todo washere washere button to manually launch processing of received command
-                if(PROCESS_IMMEDIATELY) {
+                if(EXECUTE_IMMEDIATELY) {
                     // 5. the big work on bg thread
                     //final BroadcastReceiver.PendingResult pr = goAsync();
-                    new Thread() {
-                        public void run() {
-                            processSoundCommandOnBgThread(intentFromDC);
-                        }
-                    }.start();
+                    executeSoundCommand(intentFromDC);
                 }
             }
         }else{
-            if(LOG) Log.w(TAG,"onReceive: start without an Intent from DC; " +
+            if(LOG) Log.w(TAG,"receiveSoundCommandWithExplicitIntent" +
+                    ": start without an Intent from DC; " +
                     "\n action: {"+action+"}"+ "\n msgType: {"+msgType+"}");
             Toast.makeText(this, "Msg type not from DC: {"+msgType+"}",
                     Toast.LENGTH_SHORT).show();
             appendToResults("Msg type not from DC: {"+msgType+"}");
         }
+    }
+
+    private void executeSoundCommand(final Intent intentFromDC){
+        writeInLog("executeSoundCommand: entering with intentFromDC = {"+intentFromDC+"}");
+        //if(intentFromDC==null)return;
+        new Thread() {
+            public void run() {
+                //todo washere washere this fails and crashes the app
+                try {
+                    executeSoundCommandOnBgThread(intentFromDC);
+                }catch(Throwable e){
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    e.printStackTrace(pw);
+                    //todo writeInLog("buttonSendSuccess listener onClick: " + e + "\n" + sw.toString());
+                    String s = "executeSoundCommand: " +
+                            "in thread calling executeSoundCommandOnBgThread: " + e +
+                            "\n" + sw.toString();
+                    Log.e(TAG, s);
+                    writeInLog(s);
+                }
+            }
+        }.start();
     }
 
     /**
@@ -261,11 +296,19 @@ public class MainActivity extends AppCompatActivity {
      * !emit signal1 signal2 signal3...
      * </p>
      */
-    private void processSoundCommandOnBgThread(final Intent intent){
+    private void executeSoundCommandOnBgThread(final Intent intent){
         try {
-            String soundCommandFromX = intent.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_CMD);
-            Toast.makeText(getApplicationContext(), "Sound command {" + soundCommandFromX +
-                            "} is being processed...", Toast.LENGTH_SHORT).show();
+            String soundCommandFromX = "sc-test";
+            writeInLog("executeSoundCommandOnBgThread: entering with no Intent and " +
+                    "soundCommandFromX = {"+ soundCommandFromX+"}");
+            if(intent!=null) {
+                soundCommandFromX = intent.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_CMD);
+                writeInLog("executeSoundCommandOnBgThread: entering with Intent containing " +
+                        "soundCommandFromX = {"+ soundCommandFromX+"}");
+            }
+
+//            Toast.makeText(getApplicationContext(), "Sound command {" + soundCommandFromX +
+//                            "} is being processed...", Toast.LENGTH_SHORT).show();
             clearResults();
             appendToResults("Starting the execution of sound command {" +
                     soundCommandFromX + "}.");
@@ -282,8 +325,7 @@ public class MainActivity extends AppCompatActivity {
 //                    "No additional results for sound command {" +
 //                            soundCommandFromX + "}.", true));
         }finally {
-            //mandatory - keep this here, at the end of the method
-            //pr.finish();
+            writeInLog("executeSoundCommandOnBgThread: exiting");
         }
     }
 
@@ -468,14 +510,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * works also when called on a bg thread.
+     *
+     * @param text
+     */
     private void writeInLog(final String text){
         //DolphinMainActivity.writeLog(text);
         if(log==null)return;
-        CharSequence l = log.getText();
-        if(l==null) l = "";
-        String s = l.toString()+"\n"+getDateTimePrefixForLog()+": "+text;
-        log.setText(s);
+        log.post(new Runnable() {
+            @Override
+            public void run() {
+                CharSequence l = log.getText();
+                if(l==null) l = "";
+                final String s = l.toString()+"\n"+getDateTimePrefixForLog()+": "+text;
+                log.setText(s);
+            }
+        });
     }
     private String getDateTimePrefixForLog() {
         final Calendar cal = Calendar.getInstance();// TimeZone.getTimeZone("GMT"));

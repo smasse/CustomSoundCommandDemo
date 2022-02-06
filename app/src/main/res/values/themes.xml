@@ -22,4 +22,6 @@
     <style name="Theme.CustomSoundCommandDemo.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.CustomSoundCommandDemo.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight"/>
 </resources>
