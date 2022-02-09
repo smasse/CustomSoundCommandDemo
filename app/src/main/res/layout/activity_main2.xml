@@ -53,6 +53,7 @@
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
         android:layout_margin="5dip"
+        android:textStyle="bold"
         android:text="CustomSoundCommandDemo: a demonstration of a third-party application to process sound commands via DC" />
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/layoutForButtons"
@@ -80,8 +81,29 @@
             android:layout_height="wrap_content"
             android:layout_margin="5dip"
             android:text="Send Failure to DC" />
-        <!--       android:textSize="8pt"
-         -->
+    </androidx.appcompat.widget.LinearLayoutCompat>
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/layoutForToggleButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="5dip"
+        android:orientation="horizontal"
+        >
+        <ToggleButton
+            android:id="@+id/toggleButtonExecuteImmediately"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dip"
+            android:textOff="Execution is Not Immediate"
+            android:textOn="Execution is Immediate" />
+        <ToggleButton
+            android:id="@+id/toggleButtonSendImmediately"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dip"
+            android:textOff="Sending is Not Immediate"
+            android:textOn="Sending is Immediate" />
     </androidx.appcompat.widget.LinearLayoutCompat>
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/layoutForTexts"
@@ -95,6 +117,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_margin="5dip"
+            android:textStyle="bold"
             android:text="The sound command data received via DC:" />
         <ScrollView
             android:id="@+id/scroll_sc_demo_data"
@@ -115,6 +138,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_margin="5dip"
+            android:textStyle="bold"
             android:text="The Automated Execution Results:" />
         <ScrollView
             android:id="@+id/scroll_sc_demo_results"
@@ -135,6 +159,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_margin="5dip"
+            android:textStyle="bold"
             android:text="The Manual Results:" />
         <EditText
             android:id="@+id/editTextManualResults"
@@ -143,16 +168,17 @@
             android:layout_margin="5dip"
             android:minHeight="48dp"
             android:text=""
-            android:inputType="text"
             android:maxLines="20"
+            android:inputType="textMultiLine"
+            android:focusable="true"
+            android:clickable="true"
             />
         <TextView
             android:id="@+id/sc_log_label"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal"
             android:layout_margin="5dip"
+            android:textStyle="bold"
             android:text="Log:" />
         <ScrollView
             android:id="@+id/scroll_cscd_log"

@@ -41,29 +41,39 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.List;
+import java.util.prefs.Preferences;
+
 /**
- * receives intents containing soundCommand String, date-time, dc installation id, ...
- * and sends intents containing results
+ * This app is designed to demonstrate the execution of a custom sound command from
+ * a dolphin (or x-user).
+ * It receives from DC messages (Intent instances) containing soundCommand String, date-time, etc.,
+ * and sends messages containing results to DC.
+ * @since 2022-2-9
  */
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
-    private static final boolean LOG = true; //todo false in prod
+    private static final boolean LOG = false; //todo false in prod
 
     /**
      * Value:
@@ -126,7 +136,10 @@ public class MainActivity extends AppCompatActivity {
     Button buttonSendFailure = null;
     TextView log = null;
     Button buttonExecute = null;
-    public static final boolean EXECUTE_IMMEDIATELY = false;
+    ToggleButton toggleButtonExecuteImmediately = null;
+    ToggleButton toggleButtonSendImmediately = null;
+    public static final boolean EXECUTE_IMMEDIATELY_DEFAULT = false;
+    public static final boolean SEND_IMMEDIATELY_DEFAULT = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +150,13 @@ public class MainActivity extends AppCompatActivity {
             textViewExecResults = findViewById(R.id.textViewResults);
             log = findViewById(R.id.cscd_log_tv);
             editTextManualResults = findViewById(R.id.editTextManualResults);
+            if(editTextManualResults!=null){
+                editTextManualResults.setSelected(false);
+                // to prevent keyboard to show at startup:
+                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                editTextManualResults.setFocusableInTouchMode(true);
+                editTextManualResults.setEnabled(true);
+            }
             buttonSendSuccess = findViewById(R.id.buttonSendSuccess);
             buttonSendSuccess.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -145,20 +165,14 @@ public class MainActivity extends AppCompatActivity {
                         if (LOG) {
                             Log.d(TAG, "buttonSendSuccess: onClick, entering...");
                         }
-                        //todo washere washere use an explicit intent
                         sendResultsWithExplicitIntent(true);
-//                    sendBroadcast(buildIntentForResultsToDC(editTextResults.getText().toString(), true));
-//                    //Snackbar.make(null,"The success results were sent to DC.",Snackbar.LENGTH_SHORT).show();
-//                    Toast.makeText(getApplicationContext(),
-//                            "The success results were sent to DC.",
-//                            Toast.LENGTH_SHORT).show();
                     } catch (Throwable e) {
                         StringWriter sw = new StringWriter();
                         PrintWriter pw = new PrintWriter(sw);
                         e.printStackTrace(pw);
                         writeInLog("buttonSendSuccess listener onClick: " + e + "\n" + sw.toString());
                         Log.e(TAG, "buttonSendSuccess listener onClick: " + e + "\n" + sw.toString());
-                        appendToResults("buttonSendSuccess listener onClick: " + e
+                        appendToResults("buttonSendSuccess listener onClick: anomaly = " + e
                                 + "\n" + sw.toString());
                     }
                 }
@@ -174,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
                         PrintWriter pw = new PrintWriter(sw);
                         e.printStackTrace(pw);
                         Log.e(TAG, "buttonSendFailure listener onClick: " + e + "\n" + sw.toString());
-                        appendToResults("buttonSendFailure listener onClick: " + e
+                        appendToResults("buttonSendFailure listener onClick: anomaly = " + e
                                 + "\n" + sw.toString());
                     }
                 }
@@ -186,18 +200,14 @@ public class MainActivity extends AppCompatActivity {
                     executeSoundCommand(intentFromDC);
                 }
             });
-            writeInLog("starting with EXECUTE_IMMEDIATELY = "+ EXECUTE_IMMEDIATELY);
-            //todo washere washere
-            //todo toggle button and a saved preference to enable/disable immediate processing
-            receiveSoundCommandWithExplicitIntent();
+            toggleButtonExecuteImmediately = findViewById(R.id.toggleButtonExecuteImmediately);
+            toggleButtonSendImmediately = findViewById(R.id.toggleButtonSendImmediately);
         }catch(Throwable e){
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
-            //writeInLog("buttonSendSuccess listener onClick: " + e + "\n" + sw.toString());
-            Log.e(TAG, "buttonSendSuccess listener onClick: " + e + "\n" + sw.toString());
-//            appendToResults("buttonSendSuccess listener onClick: " + e
-//                    + "\n" + sw.toString());
+            writeInLog("buttonSendSuccess listener onClick: " + e + "\n" + sw);
+            Log.e(TAG, "buttonSendSuccess listener onClick: " + e + "\n" + sw);
         }
     }
 
@@ -220,39 +230,19 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG,"receiveSoundCommandWithExplicitIntent" +
                         ": entering with valid Intent action");
             }
-            // 1. setup
-            //MainActivity mainActivity = (MainActivity)mainActivityObject;
-            // 2. verify
-//            String msgType = intentFromDC.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_TYPE);
-//            if( msgType==null || ! SOUND_COMMAND_INTENT_TYPE_FROM_X_VIA_DC.equals(msgType)) {
-//                Toast.makeText(this, "The msg received" +
-//                                " does not contain a valid type; type = {"+msgType+"}",
-//                        Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-            String soundCommandFromX = intentFromDC.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_CMD);
+            soundCommandFromX = intentFromDC.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_CMD);
             writeInLog("receiveSoundCommandWithExplicitIntent" +
                     ": soundCommandFromX = {"+soundCommandFromX+"}");
             if(soundCommandFromX==null||soundCommandFromX.length()==0){
                 // anomaly
                 appendToResults("The received msg does not contain a sound command.");
-                Toast.makeText(this,"The received msg does not contain a sound command.",
-                        Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this,"The received msg does not contain a sound command.",
+//                        Toast.LENGTH_SHORT).show();
             }else {
-                // 3. gui
+                // ok
                 writeReceivedIntent(intentFromDC, this);
-                // 4. ack: notif reception: send reception notif intent to dc
-                //todo washere  disable for this step, and enable when the step is ok
-                // mainActivity.sendBroadcast(mainActivity.buildIntentForReceptionNotifToDC());
-
-                //todo washere  see https://developer.android.com/training/snackbar/showing
-                // use CoordinatorLayout
-//                Snackbar.make(null,"The reception notification was sent to DC.",
-//                        Snackbar.LENGTH_SHORT).show();
-//todo washere washere button to manually launch processing of received command
-                if(EXECUTE_IMMEDIATELY) {
-                    // 5. the big work on bg thread
-                    //final BroadcastReceiver.PendingResult pr = goAsync();
+                if(toggleButtonExecuteImmediately.isChecked()) {
+                    //Immediate: the big work on bg thread
                     executeSoundCommand(intentFromDC);
                 }
             }
@@ -260,8 +250,8 @@ public class MainActivity extends AppCompatActivity {
             if(LOG) Log.w(TAG,"receiveSoundCommandWithExplicitIntent" +
                     ": start without an Intent from DC; " +
                     "\n action: {"+action+"}"+ "\n msgType: {"+msgType+"}");
-            Toast.makeText(this, "Msg type not from DC: {"+msgType+"}",
-                    Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Msg type not from DC: {"+msgType+"}",
+//                    Toast.LENGTH_SHORT).show();
             appendToResults("Msg type not from DC: {"+msgType+"}");
         }
     }
@@ -269,24 +259,35 @@ public class MainActivity extends AppCompatActivity {
     private void executeSoundCommand(final Intent intentFromDC){
         writeInLog("executeSoundCommand: entering with intentFromDC = {"+intentFromDC+"}");
         //if(intentFromDC==null)return;
-        new Thread() {
-            public void run() {
-                //todo washere washere this fails and crashes the app
-                try {
-                    executeSoundCommandOnBgThread(intentFromDC);
-                }catch(Throwable e){
-                    StringWriter sw = new StringWriter();
-                    PrintWriter pw = new PrintWriter(sw);
-                    e.printStackTrace(pw);
-                    //todo writeInLog("buttonSendSuccess listener onClick: " + e + "\n" + sw.toString());
-                    String s = "executeSoundCommand: " +
-                            "in thread calling executeSoundCommandOnBgThread: " + e +
-                            "\n" + sw.toString();
-                    Log.e(TAG, s);
-                    writeInLog(s);
+        if(toggleButtonSendImmediately==null){
+            writeInLog("defect detected in executeSoundCommand: " +
+                    "toggleButtonSendImmediately is null; exiting");
+            return;
+        }
+        if(textViewExecResults!=null) {
+            final boolean SEND_IMMEDIATE = toggleButtonSendImmediately.isChecked();
+            textViewExecResults.setText("");
+            new Thread() {
+                public void run() {
+                    try {
+                        executeSoundCommandOnBgThread(intentFromDC,SEND_IMMEDIATE);
+                    }catch(Throwable e){
+                        StringWriter sw = new StringWriter();
+                        PrintWriter pw = new PrintWriter(sw);
+                        e.printStackTrace(pw);
+                        String s = "executeSoundCommand: " +
+                                "in thread calling executeSoundCommandOnBgThread: " + e +
+                                "\n" + sw;
+                        Log.e(TAG, s);
+                        writeInLog(s);
+                        appendToResults(s);
+                    }
                 }
-            }
-        }.start();
+            }.start();
+        }else{
+            writeInLog("defect detected in executeSoundCommand: " +
+                    "textViewExecResults is null; exiting");
+        }
     }
 
     /**
@@ -296,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
      * !emit signal1 signal2 signal3...
      * </p>
      */
-    private void executeSoundCommandOnBgThread(final Intent intent){
+    private void executeSoundCommandOnBgThread(final Intent intent, final boolean sendImmediately){
         try {
             String soundCommandFromX = "sc-test";
             writeInLog("executeSoundCommandOnBgThread: entering with no Intent and " +
@@ -307,13 +308,19 @@ public class MainActivity extends AppCompatActivity {
                         "soundCommandFromX = {"+ soundCommandFromX+"}");
             }
 
-//            Toast.makeText(getApplicationContext(), "Sound command {" + soundCommandFromX +
-//                            "} is being processed...", Toast.LENGTH_SHORT).show();
-            clearResults();
-            appendToResults("Starting the execution of sound command {" +
-                    soundCommandFromX + "}.");
             //todo write your code here to process the sound command
             // and edit the following statements for your own needs
+
+            appendToResults("Starting the execution of sound command {" +
+                    soundCommandFromX + "}.");
+
+            appendToResults("This is demonstration; nothing else is done here." +
+                    "The implementer would normally add the custom code here." +
+                    " This could be, for example, to execute a program" +
+                    ", or to send an http request to a web address" +
+                    ", or to send an email to staff.");
+
+            boolean success = true;
 
             // the results are sent by h-user using the buttons (success or failure)
             // after going to the receiver app manually (this app);
@@ -321,34 +328,48 @@ public class MainActivity extends AppCompatActivity {
             appendToResults("The execution of sound command {" +
                     soundCommandFromX + "} has completed.");
 
-//            sendBroadcast(buildIntentForResultsToDC(
-//                    "No additional results for sound command {" +
-//                            soundCommandFromX + "}.", true));
+            if(sendImmediately) {
+                writeInLog("executeSoundCommandOnBgThread: sendImmediately is checked, " +
+                        "so sending now");
+                //============================================
+                sendResultsWithExplicitIntent(success);
+                //============================================
+            }else{
+                writeInLog("executeSoundCommandOnBgThread: sendImmediately is not checked, " +
+                        "so not sending now and waiting for the manual action");
+            }
         }finally {
             writeInLog("executeSoundCommandOnBgThread: exiting");
         }
     }
 
+    public static final String DC_ACTIVITY = "sm.app.dc/.CustomSoundCommandResultsReceiver";
+
+    public static final String AUTOMATED_RESULTS_LABEL = "Automated Results";
+    public static final String MANUAL_RESULTS_LABEL = "Manual Results";
     /**
      * Uses an explicit Intent
      */
     private void sendResultsWithExplicitIntent(final boolean success){
         try {
             Intent explicit = new Intent();
-            ComponentName cn = ComponentName.unflattenFromString(
-                    "sm.app.dc/.CustomSoundCommandResultsReceiver");
+            ComponentName cn = ComponentName.unflattenFromString(DC_ACTIVITY);
             explicit.setComponent(cn);
             String execResults = textViewExecResults.getText().toString();
+            if(TextUtils.isEmpty(execResults))execResults = "(empty)";
             String manualResults = editTextManualResults.getText().toString();
-            String results = "Automated Results: " + execResults +
-                    "\n~~~~~\nManual Results: " + manualResults;
+            if(TextUtils.isEmpty(manualResults))manualResults = "(empty)";
+            String results = "[\n"+AUTOMATED_RESULTS_LABEL+": " + execResults +
+                    "\n]\n["+MANUAL_RESULTS_LABEL+": " + manualResults+"\n]";
             addExtras(explicit, results, success);
             //todo try queryIntentActivities and queryIntentActivityOptions
             PackageManager pm = getPackageManager();
             List<ResolveInfo> list = pm.queryIntentActivities(explicit, 0);
+            writeInLog("sendResultsWithExplicitIntent: List<ResolveInfo> list {"+list+"}"+
+                " for DC_ACTIVITY = "+DC_ACTIVITY);
             if (list.isEmpty()) {
-                Toast.makeText(getApplicationContext(), "No app matching intent " + explicit.toString(),
-                        Toast.LENGTH_LONG).show();
+//                Toast.makeText(getApplicationContext(), "No app matching intent " + explicit,
+//                        Toast.LENGTH_LONG).show();
                 return;
             } else {
 //            for (ResolveInfo ri : list) {
@@ -358,17 +379,19 @@ public class MainActivity extends AppCompatActivity {
             try {
                 startActivity(explicit);
             } catch (ActivityNotFoundException e) {
-                //todo writeInConsoleByApp("No activity found for the sound command.");
-                Toast.makeText(getApplicationContext(), "Results NOT sent to DC: " + e,
-                        Toast.LENGTH_LONG).show();
+//                Toast.makeText(getApplicationContext(), "Results NOT sent to DC: " + e,
+//                        Toast.LENGTH_LONG).show();
+                writeInLog("Results NOT sent to DC: " + e);
                 return;
             }
             String s = success ? "success" : "failure";
-            Toast.makeText(getApplicationContext(), "The " + s + " results were sent to DC.",
-                    Toast.LENGTH_LONG).show();
+//            Toast.makeText(getApplicationContext(), "The " + s + " results were sent to DC.",
+//                    Toast.LENGTH_LONG).show();
+            writeInLog("The " + s + " results were sent to DC.");
         }catch(Throwable e2){
-            Toast.makeText(getApplicationContext(), "Anomaly in sendResultsWithExplicitIntent: " +
-                            e2, Toast.LENGTH_LONG).show();
+//            Toast.makeText(getApplicationContext(), "Anomaly in sendResultsWithExplicitIntent: " +
+//                            e2, Toast.LENGTH_LONG).show();
+            writeInLog("Anomaly in sendResultsWithExplicitIntent: " + e2);
         }
     }
 
@@ -382,36 +405,13 @@ public class MainActivity extends AppCompatActivity {
         //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TYPE,SOUND_COMMAND_INTENT_TYPE_RESULTS_TO_DC);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS,results);
-        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS,success);
+        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS,""+success);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_CMD,soundCommandFromX);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS,System.currentTimeMillis());
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_DATE_STRING,""+Calendar.getInstance().getTime());
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID,"todo");
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_APP_ID,getClass().getName());
     }
-
-    /* *
-     * Designed to be called by the button to send results back to DC.
-     * Caller should call sendBroadcast(buildIntentForResultsToDC(results,success));
-     *
-     * @param results String from gui edittext
-     * @param success boolean from button
-     * @return Intent
-     */
-//    Intent buildIntentForResultsToDC(String results, final boolean success){
-//        Intent intent = new Intent();
-//        intent.setAction(SOUND_COMMAND_INTENT_ACTION_RESULTS);
-//        intent.addCategory(Intent.CATEGORY_DEFAULT);
-//        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TYPE,SOUND_COMMAND_INTENT_TYPE_RESULTS_TO_DC);
-//        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS,results);
-//        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS,success);
-//        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_CMD,soundCommandFromX);
-//        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS,System.currentTimeMillis());
-//        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_DATE_STRING,""+Calendar.getInstance().getTime());
-//        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID,"todo");
-//        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_APP_ID,getClass().getName());
-//        return intent;
-//    }
 
     /**
      * for future use;
@@ -431,17 +431,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Designed to be called
-     * when receiving a potentially valid Intent.
+     * Designed to be called when receiving a potentially valid Intent.
      *
      * @param intent the received Intent
      * @param context from Android when receiving an Intent.
      */
     void writeReceivedIntent(final Intent intent, final Context context){
-        String soundCommand = intent.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_CMD);
-        Toast.makeText(context, "Received sound command {" + soundCommand+"}",
-                Toast.LENGTH_SHORT).show();
         soundCommandFromX = intent.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_CMD);
+//        Toast.makeText(context, "Received sound command {" + soundCommand+"}",
+//                Toast.LENGTH_SHORT).show();
+        writeInLog("Received sound command {" + soundCommandFromX+"}");
         String dateString = intent.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_DATE_STRING);
         long timeMillisLong = intent.getLongExtra(SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS,0L);
         String installationId = intent.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID);
@@ -453,16 +452,17 @@ public class MainActivity extends AppCompatActivity {
                 "\n\ninstallationId = {" + installationId + "}" +
                 "\n\nappId = {" + appId + "}";
         if(textViewCommandData !=null) {
-            runOnUiThread(new Runnable() {
+            textViewCommandData.post(new Runnable() {
                 @Override
                 public void run() {
                     textViewCommandData.setText(s);
                 }
             });
         }else{
-            if(LOG){
-                Log.w(TAG,"writeReceivedIntent(2-args): textViewCommandData is null");
-            }
+//            if(LOG){
+//                Log.w(TAG,"writeReceivedIntent(2-args): textViewCommandData is null");
+//            }
+            writeInLog("writeReceivedIntent(2-args): textViewCommandData is null");
         }
     }
 
@@ -486,24 +486,10 @@ public class MainActivity extends AppCompatActivity {
                         textViewExecResults.setText(prev + "\n~~~~~\n" + text);
                     }
                 }else{
-                    if(LOG){
-                        Log.w(TAG,"appendToResults(1-arg): editTextResults is null");
-                    }
-                }
-            }
-        });
-    }
-
-    void clearResults(){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(textViewExecResults!=null) {
-                    textViewExecResults.setText("");
-                }else{
-                    if(LOG){
-                        Log.w(TAG,"clearResults(1-arg): textViewExecResults is null");
-                    }
+//                    if(LOG){
+//                        Log.w(TAG,"appendToResults(1-arg): editTextResults is null");
+//                    }
+                    writeInLog("appendToResults(1-arg): editTextResults is null");
                 }
             }
         });
@@ -516,14 +502,18 @@ public class MainActivity extends AppCompatActivity {
      * @param text
      */
     private void writeInLog(final String text){
-        //DolphinMainActivity.writeLog(text);
         if(log==null)return;
         log.post(new Runnable() {
             @Override
             public void run() {
                 CharSequence l = log.getText();
                 if(l==null) l = "";
-                final String s = l.toString()+"\n"+getDateTimePrefixForLog()+": "+text;
+                String s = "";
+                if(TextUtils.isEmpty(l)){
+                    s = getDateTimePrefixForLog()+": "+text;
+                }else{
+                    s = l +"\n"+getDateTimePrefixForLog()+": "+text;
+                }
                 log.setText(s);
             }
         });
@@ -536,6 +526,76 @@ public class MainActivity extends AppCompatActivity {
         CharSequence time = DateFormat.format("yyyy-MM-dd hh:mm:ss" + millisFormat,
                 cal.getTimeInMillis());// +" GMT";
         return time.toString();
+    }
+
+
+    //============== preferences ==============
+
+
+    /**
+     * Designed to be called after the GUI is created.
+     */
+    void restorePreferences(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean exec = preferences.getBoolean(TOGGLE_BUTTON_EXECUTE_IMMEDIATELY_KEY,
+                EXECUTE_IMMEDIATELY_DEFAULT);
+        if(toggleButtonExecuteImmediately!=null) {
+            toggleButtonExecuteImmediately.setChecked(exec);
+        }
+        boolean send = preferences.getBoolean(TOGGLE_BUTTON_SEND_IMMEDIATELY_KEY,
+                SEND_IMMEDIATELY_DEFAULT);
+        if(toggleButtonSendImmediately!=null){
+            toggleButtonSendImmediately.setChecked(send);
+        }
+    }
+
+    public static final String TOGGLE_BUTTON_EXECUTE_IMMEDIATELY_KEY =
+            "toggleButtonExecuteImmediatelyKey";
+    public static final String TOGGLE_BUTTON_SEND_IMMEDIATELY_KEY =
+            "toggleButtonSendImmediatelyKey";
+
+    void savePreferences(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        boolean exec = toggleButtonExecuteImmediately==null?EXECUTE_IMMEDIATELY_DEFAULT:
+                toggleButtonExecuteImmediately.isChecked();
+        editor.putBoolean(TOGGLE_BUTTON_EXECUTE_IMMEDIATELY_KEY,exec);
+
+        boolean send = toggleButtonSendImmediately==null?SEND_IMMEDIATELY_DEFAULT:
+                toggleButtonSendImmediately.isChecked();
+        editor.putBoolean(TOGGLE_BUTTON_SEND_IMMEDIATELY_KEY,send);
+
+        editor.commit();
+    }
+    protected void onResume(){
+        super.onResume();
+        writeInLog("onResume: starting with: " +
+                        "\n EXECUTE_IMMEDIATELY_DEFAULT = "+ EXECUTE_IMMEDIATELY_DEFAULT+
+                        "\n SEND_IMMEDIATELY_DEFAULT = "+SEND_IMMEDIATELY_DEFAULT
+//                "\n toggleButtonExecuteImmediately.isChecked() = "+toggleButtonExecuteImmediately.isChecked()+
+//                "\n toggleButtonSendImmediately.isChecked() = "+toggleButtonSendImmediately.isChecked()
+        );
+        restorePreferences();
+        writeInLog("onResume: restored preferences:"+
+                "\n toggleButtonExecuteImmediately.isChecked() = "+
+                toggleButtonExecuteImmediately.isChecked()+
+                "\n toggleButtonSendImmediately.isChecked() = " +
+                toggleButtonSendImmediately.isChecked()
+        );
+        receiveSoundCommandWithExplicitIntent();
+    }
+    protected void onPause(){
+        savePreferences();
+        super.onPause();
+    }
+    protected void onStop(){
+        savePreferences();
+        super.onStop();
+    }
+    protected void onDestroy(){
+        savePreferences();
+        super.onDestroy();
     }
 
 }
