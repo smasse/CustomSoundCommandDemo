@@ -1,7 +1,28 @@
 # SoundCommandApps
 
-Applications to execute sound commands from dolphins or other participants via DC Dolphin Communicator.
+GitLab project SoundCommandApps contains applications to execute sound commands from dolphins or other participants via DC Dolphin Communicator.
 
+# Application SC Sound Command Demo
+
+Application *SC Sound Command Demo* is from Android project CustomSoundCommandDemo; it includes sm.app.sc.customsoundcommanddemo.MainActivity
+
+SC Sound Command Demo is designed to demonstrate the execution of custom sound commands emitted by dolphins (or others) and captured and recognized in real-time by the DC Dolphin Communicator app, also for Android. The human user can define the frequencies of a sound command in DC, a dolphin or other participant emits the sound command, DC recognizes it in real-time, sends it to this app, which executes the programmed logic for it, and sends the results back to DC.
+
+Using this app as an example, Android programmers can write their own app to process customized sound command in DC.
+
+This app is also designed to demonstrate the effectiveness of DC for implementing sound command and develop automated responses to dolphin signals.
+
+For example, you can have dolphins learn a specific command to call for medical assistance,
+with DC running on a tablet with a hydrophone and with no staff present,
+your sound command execution app could send an alert email to staff
+or an http URL to a server which would execute some function.
+This may be useful in an authentic sanctuary.
+<!--
+The DC project includes a demo app that you can modify or use as an example to implement your own command execution.
+See detailed how-to in User Guide (in the app)
+-->
+
+<!--
 ## Getting started
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
@@ -93,3 +114,5 @@ If you have run out of energy or time for your project, put a note at the top of
 
 ## todo review gitignore file
 test git main branch...ok now
+
+-->
