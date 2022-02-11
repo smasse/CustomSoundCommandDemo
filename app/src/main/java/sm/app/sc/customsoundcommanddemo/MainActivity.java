@@ -36,7 +36,10 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package sm.app.sc.customsoundcommanddemo;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -146,6 +149,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         try {
             setContentView(R.layout.activity_main2);
+            //toolbar:
+            Toolbar toolbar = findViewById(R.id.sc_toolbar);
+            setSupportActionBar(toolbar);
+            ActionBar actionBar = getSupportActionBar();
+            String appName = "SC DEMO";//getString(getApplicationInfo().labelRes);//getAppName();
+//            if(weAreOnASmallDevice()){
+//                appName = getString(R.string.app_name_shortest);
+//            }
+            actionBar.setTitle(appName+" v"+getPackageManager().getPackageInfo(
+                    getPackageName(), 0).versionCode);
+            //end of toolbar
             textViewCommandData = findViewById(R.id.textViewCommandData);
             textViewExecResults = findViewById(R.id.textViewResults);
             log = findViewById(R.id.cscd_log_tv);
