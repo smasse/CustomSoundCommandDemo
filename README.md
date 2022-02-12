@@ -1,9 +1,9 @@
-# SoundCommandApps
+# SoundCommandApps #
 
 GitLab project SoundCommandApps contains applications to execute sound commands from dolphins 
 or other participants via DC Dolphin Communicator app.
 
-# Application SC Sound Command Demo
+# Application SC Sound Command Demo #
 
 Application *SC Sound Command Demo* is from Android project CustomSoundCommandDemo; 
 it includes sm.app.sc.customsoundcommanddemo.MainActivity
@@ -26,6 +26,64 @@ with DC running on a tablet with a hydrophone and with no staff present,
 your sound command execution app could send an alert email to staff
 or an http URL to a server which would execute some function.
 This may be useful in an authentic sanctuary.
+
+
+#### How to quickly test the custom sound command feature with DC as-is, without emission: ####
+
+1. This text assumes that you are using DC already.
+2. Install the *SC Sound Command Demo* app (free from Google Play, no ads).
+3. Run *SC Sound Command Demo* app to ensure all is fine.
+4. In DC, select the menu option, 3 dots, and *Sound Command Results*
+   this will open CustomSoundCommandResultsReceiver
+5. Select button *SEND TEST COMMAND SC-TEST*
+   this will send sound command 'sc-test' to the app identified in the setting
+   naming the third party app; if the setting has not been edited, then this
+   will send 'sc-test' to app CustomSoundCommandDemo.
+6. App CustomSoundCommandDemo will open
+7. Select button EXECUTE
+8. Select button SEND SUCCESS TO DC
+   This will send a success message to DC, DC message receiver screen will be shown
+9. In DC CustomSoundCommandResultsReceiver,
+   inspect the text to ensure that all is well
+10. The test is complete and you can use the CLOSE button,
+    which will show app CustomSoundCommandDemo, because it is next in the stack;
+    this will show the previous screen for DC CustomSoundCommandResultsReceiver,
+    because it is next in the stack (the data there is not recent);
+    then you can use the CLOSE button or the back key to show DC main screen
+    which is the spectrogram and the console,
+    which will contain main events and sound command execution results text.
+11. You can use buttons SAVE TEXT or SAVE ALL or EXPORT DB
+    to save this text to the database, etc.
+    You can also do a screenshot for future reference.
+
+
+#### How to test the custom sound command feature using an actual sound command: ####
+
+1. This text assumes that you are using DC already.
+2. Install the *SC Sound Command Demo* app (free from Google Play, no ads).
+3. Run *SC Sound Command Demo* app to ensure all is fine.
+4. In DC, select the SELF-TEST button
+   This will make DC process the whistles that it emits as if they are from a participating
+   entity and not from itself, because normally DC does not listen to its own whistles.
+5. In the edit text field to the left of the EMIT button, type sc-test  
+   ('sc-test' is the name of the hard-coded sound command for testing this new feature,
+   all sound command names in DC start with 'sc-')
+6. Select the EMIT button;  
+   this will play the sc-test whistle which is hard-coded and designed to trigger  
+   the transmission of the command (sc-test) to CustomSoundCommandDemo;  
+   The name of CustomSoundCommandDemo is defined in a setting that can be edited to use your own  
+   app name later.  
+   The app CustomSoundCommandDemo is run and is shown by Android.
+7. Select the EXECUTE button which will generate a test text in the results field.
+8. Select the SEND SUCCESS TO DC button, and this will send the results back to DC.
+9. DC's special activity CustomSoundCommandResultsReceiver will show up.  
+   The results will also be shown in the main screen text (the chat text, aka. console)
+10. Select the CLOSE button.  
+    This will close the screen and show the CustomSoundCommandDemo which is behind it in the stack.
+11. Use the back key to show DC main screen.  
+    The results are in the text in the console (yellow text over the spectrogram).
+
+
 
 ### Release 1 - 2022-2-12 ###
 
