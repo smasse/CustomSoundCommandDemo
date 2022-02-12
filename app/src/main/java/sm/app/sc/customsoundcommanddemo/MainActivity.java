@@ -150,16 +150,22 @@ public class MainActivity extends AppCompatActivity {
         try {
             setContentView(R.layout.activity_main2);
             //toolbar:
-            Toolbar toolbar = findViewById(R.id.sc_toolbar);
-            setSupportActionBar(toolbar);
-            ActionBar actionBar = getSupportActionBar();
-            String appName = "SC DEMO";//getString(getApplicationInfo().labelRes);//getAppName();
-//            if(weAreOnASmallDevice()){
-//                appName = getString(R.string.app_name_shortest);
-//            }
-            actionBar.setTitle(appName+" v"+getPackageManager().getPackageInfo(
-                    getPackageName(), 0).versionCode);
+//            Toolbar toolbar = findViewById(R.id.sc_toolbar);
+//            setSupportActionBar(toolbar);
+//            ActionBar actionBar = getSupportActionBar();
+//            String appName = "SC DEMO";//getString(getApplicationInfo().labelRes);//getAppName();
+////            if(weAreOnASmallDevice()){
+////                appName = getString(R.string.app_name_shortest);
+////            }
+//            actionBar.setTitle(appName+" v"+getPackageManager().getPackageInfo(
+//                    getPackageName(), 0).versionCode);
             //end of toolbar
+            TextView tv1 = findViewById(R.id.top_view_sc_demo_main);
+            if(tv1!=null) {
+                int v = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+                tv1.setText("v"+v+" "+tv1.getText());
+            }
+
             textViewCommandData = findViewById(R.id.textViewCommandData);
             textViewExecResults = findViewById(R.id.textViewResults);
             log = findViewById(R.id.cscd_log_tv);
