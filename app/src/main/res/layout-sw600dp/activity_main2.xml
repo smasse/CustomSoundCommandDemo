@@ -36,7 +36,7 @@
   ~ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
   ~ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
-<!-- layout for small screens -->
+<!-- layout for larger screens -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -46,8 +46,7 @@
     tools:context=".MainActivity"
     android:id="@+id/root_sc_main"
     android:layout_margin="5dip"
-    android:orientation="vertical"
-    >
+    android:orientation="vertical">
     <!--<com.google.android.material.appbar.AppBarLayout todo washere washere fix
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -58,7 +57,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
-    </com.google.android.material.appbar.AppBarLayout>-->
+            </com.google.android.material.appbar.AppBarLayout>-->
     <TextView
         android:id="@+id/top_view_sc_demo_main"
         android:layout_width="fill_parent"
@@ -81,28 +80,25 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_margin="5dip"
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 >
                 <Button
                     android:id="@+id/buttonExecute"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dip"
-                    android:layout_gravity="center_horizontal"
                     android:text="Execute" />
                 <Button
                     android:id="@+id/buttonSendSuccess"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dip"
-                    android:layout_gravity="center_horizontal"
                     android:text="Send Success to DC" />
                 <Button
                     android:id="@+id/buttonSendFailure"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dip"
-                    android:layout_gravity="center_horizontal"
                     android:text="Send Failure to DC" />
             </LinearLayout>
             <LinearLayout
@@ -111,14 +107,13 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_margin="5dip"
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 >
                 <ToggleButton
                     android:id="@+id/toggleButtonExecuteImmediately"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dip"
-                    android:layout_gravity="center_horizontal"
                     android:textOff="Execution is Not Immediate"
                     android:textOn="Execution is Immediate" />
                 <ToggleButton
@@ -126,7 +121,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dip"
-                    android:layout_gravity="center_horizontal"
                     android:textOff="Sending is Not Immediate"
                     android:textOn="Sending is Immediate" />
             </LinearLayout>
@@ -192,7 +186,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="5dip"
                     android:minHeight="48dp"
-                    android:text="Type your manual results here"
+                    android:text=""
                     android:maxLines="20"
                     android:inputType="textMultiLine"
                     android:focusable="true"

@@ -71,6 +71,9 @@ import java.util.prefs.Preferences;
  * a dolphin (or x-user).
  * It receives from DC messages (Intent instances) containing soundCommand String, date-time, etc.,
  * and sends messages containing results to DC.
+ *
+ * <p>Release 1 = 2022-2-12</p>
+ *
  * @since 2022-2-9
  */
 public class MainActivity extends AppCompatActivity {
@@ -82,13 +85,14 @@ public class MainActivity extends AppCompatActivity {
      * Value:
      * <p>
      * <code>
-     * sm.app.dc.intent.action.SOUND_COMMAND
+     * <!-- sm.app.dc.intent.action.SOUND_COMMAND -->
+     *     "android.intent.action.MAIN"
      * </code></p>
      * <p>old value "sm.app.dc.intent.action.SOUND_COMMAND" is replaced by
      * Intent.ACTION_MAIN and SOUND_COMMAND_INTENT_EXTRA_TYPE</p>
      */
     static final String SOUND_COMMAND_INTENT_ACTION = Intent.ACTION_MAIN;
-    //"sm.app.dc.intent.action.SOUND_COMMAND";
+
     /**
      * values:
      * sound-command-from-x-via-dc
@@ -149,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         try {
             setContentView(R.layout.activity_main2);
-            //toolbar:
+            //toolbar: todo washere washere fix
 //            Toolbar toolbar = findViewById(R.id.sc_toolbar);
 //            setSupportActionBar(toolbar);
 //            ActionBar actionBar = getSupportActionBar();
@@ -222,6 +226,18 @@ public class MainActivity extends AppCompatActivity {
             });
             toggleButtonExecuteImmediately = findViewById(R.id.toggleButtonExecuteImmediately);
             toggleButtonSendImmediately = findViewById(R.id.toggleButtonSendImmediately);
+
+            // notify absence or presence of dc on device
+            if(isDCOnDevice()){
+                writeInLog("DC app is on this device.");
+            }else{
+                writeInLog("DC app is _not_ on this device" +
+                        "; please download it from Google Play(TM)" +
+                        ": *DC Dolphin Communicator*");
+                Toast.makeText(this, "DC app is _not_ on this device; download it.",
+                        Toast.LENGTH_LONG).show();
+            }
+
         }catch(Throwable e){
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -365,6 +381,15 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String DC_ACTIVITY = "sm.app.dc/.CustomSoundCommandResultsReceiver";
 
+    boolean isDCOnDevice(){
+        Intent explicit = new Intent();
+        ComponentName cn = ComponentName.unflattenFromString(DC_ACTIVITY);
+        explicit.setComponent(cn);
+        PackageManager pm = getPackageManager();
+        List<ResolveInfo> list = pm.queryIntentActivities(explicit, 0);
+        return ! list.isEmpty();
+    }
+
     public static final String AUTOMATED_RESULTS_LABEL = "Automated Results";
     public static final String MANUAL_RESULTS_LABEL = "Manual Results";
     /**
@@ -372,6 +397,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void sendResultsWithExplicitIntent(final boolean success){
         try {
+            final String s = success ? "success" : "failure";
             Intent explicit = new Intent();
             ComponentName cn = ComponentName.unflattenFromString(DC_ACTIVITY);
             explicit.setComponent(cn);
@@ -382,32 +408,31 @@ public class MainActivity extends AppCompatActivity {
             String results = "[\n"+AUTOMATED_RESULTS_LABEL+": " + execResults +
                     "\n]\n["+MANUAL_RESULTS_LABEL+": " + manualResults+"\n]";
             addExtras(explicit, results, success);
-            //todo try queryIntentActivities and queryIntentActivityOptions
             PackageManager pm = getPackageManager();
+            //ComponentName resolved = explicit.resolveActivity(pm);//todo needed???
+            //todo try queryIntentActivities and queryIntentActivityOptions
             List<ResolveInfo> list = pm.queryIntentActivities(explicit, 0);
-            writeInLog("sendResultsWithExplicitIntent: List<ResolveInfo> list {"+list+"}"+
-                " for DC_ACTIVITY = "+DC_ACTIVITY);
+//            writeInLog("sendResultsWithExplicitIntent: List<ResolveInfo> list {"+list+"}"+
+//                " for "+DC_ACTIVITY);
             if (list.isEmpty()) {
-//                Toast.makeText(getApplicationContext(), "No app matching intent " + explicit,
-//                        Toast.LENGTH_LONG).show();
+                writeInLog("The " + s + " results were NOT sent to DC " +
+                        "because DC app not found on this device" +
+                        "; you need to download it from Google Play(TM): "+
+                        "*DC Dolphin Communicator*");
                 return;
             } else {
 //            for (ResolveInfo ri : list) {
 //                writeInConsoleByApp(ri.activityInfo.name);
 //            }
+                try {
+                    startActivity(explicit);
+                } catch (ActivityNotFoundException e) {
+                    writeInLog("Results NOT sent to DC " +
+                            "because *startActivity(explicit)* raised: " + e);
+                    return;
+                }
+                writeInLog("The " + s + " results were sent to DC.");
             }
-            try {
-                startActivity(explicit);
-            } catch (ActivityNotFoundException e) {
-//                Toast.makeText(getApplicationContext(), "Results NOT sent to DC: " + e,
-//                        Toast.LENGTH_LONG).show();
-                writeInLog("Results NOT sent to DC: " + e);
-                return;
-            }
-            String s = success ? "success" : "failure";
-//            Toast.makeText(getApplicationContext(), "The " + s + " results were sent to DC.",
-//                    Toast.LENGTH_LONG).show();
-            writeInLog("The " + s + " results were sent to DC.");
         }catch(Throwable e2){
 //            Toast.makeText(getApplicationContext(), "Anomaly in sendResultsWithExplicitIntent: " +
 //                            e2, Toast.LENGTH_LONG).show();
@@ -419,9 +444,9 @@ public class MainActivity extends AppCompatActivity {
         // soundCommandString, date-time, dc installation id, ...
 //         intent.setAction(SOUND_COMMAND_INTENT_ACTION);
 //         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        intent.setType("text/plain");//receivers use "text/*" todo not needed currently
+        intent.setAction(Intent.ACTION_VIEW);//MAIN);//todo washere washere try ACTION_VIEW
+        intent.addCategory(Intent.CATEGORY_DEFAULT);//LAUNCHER);
+        //intent.setType("text/plain");//receivers use "text/*" todo not needed currently
         //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TYPE,SOUND_COMMAND_INTENT_TYPE_RESULTS_TO_DC);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS,results);

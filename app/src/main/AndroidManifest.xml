@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sm.app.sc.customsoundcommanddemo">
-
+    <queries>
+        <package android:name="sm.app.dc" />
+    </queries>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,11 +11,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CustomSoundCommandDemo">
-        <!--<activity
-            android:name=".Activity2"
-            android:exported="false"
-            android:label="@string/title_activity_2"
-            android:theme="@style/Theme.CustomSoundCommandDemo.NoActionBar" />-->
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -22,6 +19,10 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!--<intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>-->
         </activity>
     </application>
 </manifest>
