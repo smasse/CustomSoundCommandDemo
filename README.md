@@ -182,7 +182,7 @@ You don't need to change the code in DC, but you need to use DC to adapt it to y
 1. identify YSC app in a setting in DC, and
 2. add one or more sound commands by using the whistle editor in DC.
 
-### DC Usage 1: Receiver Class Name To Go in DC ###
+### Set the Receiver Class Name in DC ###
 
 Use the setting "SettingCustomSoundCommandExecutorApp" in DC 
 to enter the name of the class in your SC to receive the data.
@@ -192,7 +192,7 @@ The format is &lt;path&gt;/.&lt;classname&gt;
 
 Example: "io.interspecies.sc/.MainActivity"
 
-#### DC Usage 2: Custom Sound Command Defined in DC ####
+#### Set the Custom Sound Command(s) in DC ####
 
 Use the Whistle Menu Item to create one or more sound commands:
 1. the name must start with "sc-"
