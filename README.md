@@ -98,11 +98,11 @@ requirements.
 The manifest for YSC must have these two elements:
 
 #### queries clause, in the manifest clause ####
-<pre>
+<pre><code>
     &lt;queries&gt;
         &lt;android:name="sm.app.dc" /&gt;
     &lt;/queries&gt;
-</pre>
+</code></pre>
 
 #### exported="true", in the receiving activity definition clause ####
 
