@@ -97,20 +97,21 @@ requirements.
 
 The manifest for YSC must have these two elements:
 
-#### queries clause ####
+#### queries clause, in the manifest clause ####
 <pre>
     &lt;queries&gt;
         &lt;android:name="sm.app.dc" /&gt;
     &lt;/queries&gt;
 </pre>
 
-#### exported="true" in the receiving activity definition clause ####
+#### exported="true", in the receiving activity definition clause ####
 
 Example:<pre><code>
     &lt;activity
         android:name=".MainActivity"
         android:label="@string/app_name"
-        android:exported="true"&gt;
+        android:exported="true"
+    &gt;
         ...
     &lt;/activity&gt;
 </code></pre>
@@ -144,14 +145,10 @@ The permanent fields:<pre><code>
     static final String SOUND_COMMAND_INTENT_EXTRA_TYPE = "sm.app.dc.intent.extra.TYPE";
     static final String SOUND_COMMAND_INTENT_TYPE_FROM_X_VIA_DC = "sound-command-from-x-via-dc";
     static final String SOUND_COMMAND_INTENT_EXTRA_CMD = "sm.app.dc.intent.extra.SOUND_COMMAND";
-    static final String SOUND_COMMAND_INTENT_EXTRA_DATE_STRING =
-            "sm.app.dc.intent.extra.SOUND_COMMAND_DATE_STRING";
-    static final String SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS =
-            "sm.app.dc.intent.extra.SOUND_COMMAND_TIME_MILLIS";
-    static final String SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID =
-            "sm.app.dc.intent.extra.SOUND_COMMAND_INSTALLATION_ID";
-    static final String SOUND_COMMAND_INTENT_EXTRA_APP_ID =
-            "sm.app.dc.intent.extra.SOUND_COMMAND_APP_ID";
+    static final String SOUND_COMMAND_INTENT_EXTRA_DATE_STRING = "sm.app.dc.intent.extra.SOUND_COMMAND_DATE_STRING";
+    static final String SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS = "sm.app.dc.intent.extra.SOUND_COMMAND_TIME_MILLIS";
+    static final String SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID = "sm.app.dc.intent.extra.SOUND_COMMAND_INSTALLATION_ID";
+    static final String SOUND_COMMAND_INTENT_EXTRA_APP_ID = "sm.app.dc.intent.extra.SOUND_COMMAND_APP_ID";
 </code></pre>
 
 The demo app contains code example to process the Intent received from DC.
@@ -173,12 +170,9 @@ be saved in DC database. This may be advantageous. The data set should be simila
 </code></pre>
 
 The permanent fields:<pre><code>
-    static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS =
-        "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS";
-    static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS =
-        "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS_SUCCESS";
-    static final String SOUND_COMMAND_INTENT_TYPE_RESULTS_TO_DC = 
-        "sound-command-results-to-dc";
+    static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS = "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS";
+    static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS = "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS_SUCCESS";
+    static final String SOUND_COMMAND_INTENT_TYPE_RESULTS_TO_DC = "sound-command-results-to-dc";
 </code></pre>
 
 ## 2. Use of DC ##
