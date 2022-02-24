@@ -100,22 +100,22 @@ requirements.
 The manifest for YSC must have these two elements:
 
 #### queries clause ####
-<pre><code>
-    <queries>
-        <package android:name="sm.app.dc" />
-    </queries>
-</code></pre>
+<pre>
+    &lt;queries&gt;
+        &gt;android:name="sm.app.dc" /&gt;
+    &lt;/queries&gt;
+</pre>
 
 #### exported="true" in the receiving activity definition clause ####
 
 Example:
 <pre><code>
-    <activity
+    &lt;activity
         android:name=".MainActivity"
         android:label="@string/app_name"
-        android:exported="true"> 
+        android:exported="true"&gt;
 
-    </activity>
+    &lt;/activity&gt;
 </code></pre>
 
 ### Data Sent By DC To YSC ###
@@ -201,7 +201,7 @@ Use the setting "SettingCustomSoundCommandExecutorApp" in DC
 to enter the name of the class in your SC to receive the data.
 It's the first one in the Settings screen.
 
-The format is <pre><code><path>/.<classname></code></pre>
+The format is &lt;path&gt;/.&lt;classname&gt;
 
 Example: "io.interspecies.sc/.MainActivity"
 
@@ -228,3 +228,4 @@ automated to supervised, and vice-versa, by using some toggle buttons.
 ### Release 2 published 2022-2-16 ###
 ### Release 3 in progress ###
 Minor improvements such as improved UI, added documentation, code cleanup.
+~~~~~
