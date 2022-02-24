@@ -83,9 +83,147 @@ This may be useful in an authentic sanctuary.
 11. Use the back key to show DC main screen.  
     The results are in the text in the console (yellow text over the spectrogram).
 
+# How To Make Your Own Sound Command Executor App #
 
+Section 1: your app (YSC)
+Section 2: using DC Dolphin Communicator app (DC)
 
-### Release 1 - 2022-2-12 ###
+## 1. Your Sound Command App (YSC) ##
+
+Your sound command app must be installed on the same device as DC and comply with these
+requirements.
+
+### Manifest ###
+
+The manifest for YSC must have these two elements:
+
+#### queries clause ####
+<pre><code>
+    <queries>
+        <package android:name="sm.app.dc" />
+    </queries>
+</code></pre>
+
+#### exported="true" in the receiving activity definition clause ####
+
+Example:
+<pre><code>
+    <activity
+        android:name=".MainActivity"
+        android:label="@string/app_name"
+        android:exported="true">
+</code></pre>
+
+### Data Sent By DC To YSC ###
+
+DC sends this data to YSC and YSC is expected to use the elements that it needs. 
+The most important element is the name of the sound command that was emitted by 
+a participant and recognized by DC.
+
+The data is in an Intent object sent by DC to the receiving class which is defined in a setting
+in DC (see below).
+
+The Intent sent by DC:
+    <pre><code>
+    ComponentName cn = ComponentName.unflattenFromString(appFlattenString);
+    Intent intent = new Intent();
+    intent.setComponent(cn);
+    intent.setAction(Intent.ACTION_MAIN);
+    intent.addCategory(Intent.CATEGORY_DEFAULT);
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TYPE,SOUND_COMMAND_INTENT_TYPE_FROM_X_VIA_DC);
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_CMD,soundCommandString);
+    //date-time millis
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS,System.currentTimeMillis());
+    //date-time string
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_DATE_STRING,""+Calendar.getInstance().getTime());
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID, Installation.getID());
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_APP_ID, appId);
+    </code></pre>
+
+The permanent fields:
+<pre><code>
+    static final String SOUND_COMMAND_INTENT_EXTRA_TYPE = "sm.app.dc.intent.extra.TYPE";
+    static final String SOUND_COMMAND_INTENT_TYPE_FROM_X_VIA_DC = "sound-command-from-x-via-dc";
+    static final String SOUND_COMMAND_INTENT_EXTRA_CMD = "sm.app.dc.intent.extra.SOUND_COMMAND";
+    static final String SOUND_COMMAND_INTENT_EXTRA_DATE_STRING =
+            "sm.app.dc.intent.extra.SOUND_COMMAND_DATE_STRING";
+    static final String SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS =
+            "sm.app.dc.intent.extra.SOUND_COMMAND_TIME_MILLIS";
+    static final String SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID =
+            "sm.app.dc.intent.extra.SOUND_COMMAND_INSTALLATION_ID";
+    static final String SOUND_COMMAND_INTENT_EXTRA_APP_ID =
+            "sm.app.dc.intent.extra.SOUND_COMMAND_APP_ID";
+</code></pre>
+
+The demo app contains code example to process the Intent received from DC.
+
+### Optional Data To Be Sent To DC By YSC ###
+
+If your app sends data to DC, then DC will write it in the console (chat) text and this will eventually 
+be saved in DC database. This may be advantageous.
+
+Code example:
+<pre><code>
+    intent.setAction(Intent.ACTION_VIEW);
+    intent.addCategory(Intent.CATEGORY_DEFAULT);
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TYPE,SOUND_COMMAND_INTENT_TYPE_RESULTS_TO_DC);
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS,results);
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS,""+success);
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_CMD,soundCommandFromX);
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS,System.currentTimeMillis());
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_DATE_STRING,""+Calendar.getInstance().getTime());
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_APP_ID,getClass().getName());
+</code></pre>
+
+The permanent fields:
+<pre><code>
+    static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS =
+        "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS";
+    static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS =
+        "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS_SUCCESS";
+    static final String SOUND_COMMAND_INTENT_TYPE_RESULTS_TO_DC = 
+        "sound-command-results-to-dc";
+</code></pre>
+
+## 2. Use of DC ##
+
+You don't need to change the code in DC, but you need to use DC to adapt it to your needs:
+2.1. identify YSC app in a setting in DC, and
+2.2. add one or more sound commands by using the whistle editor in DC.
+
+### DC Usage 1: Receiver Class Name To Go in DC ###
+
+Use the setting "SettingCustomSoundCommandExecutorApp" in DC 
+to enter the name of the class in your SC to receive the data.
+It's the first one in the Settings screen.
+
+The format is <path>/.<classname>
+
+Example: "io.interspecies.sc/.MainActivity"
+
+#### DC Usage 2: Custom Sound Command Defined in DC ####
+
+Use the Whistle Menu Item to create one or more sound commands:
+
+1. the name must start with "sc-"
+2. the frequency pattern must _not_ be similar to other sound commands, either hard-coded or not.
+
+## YSC Design Option: Automatic versus Supervised ##
+
+You can design YSC to wait for human action before executing the sound command received from DC 
+or YSC can execute it immediately (after verifications by the app), 
+so that the device can act entirely without a human presence 
+because DC does it's part automatically, without human interaction.
+
+The demo app includes an example of controls to switch the same app from
+automated to supervised, and vice-versa, by using some toggle buttons.
+
+~~~~~
+    
+### Release 1 published 2022-2-12 ###
+### Release 2 published 2022-2-16 ###
+### Release 3 in progress ###
+Minor improvements such as improved UI, added documentation, code cleanup.
 
 <!--
 The DC project includes a demo app that you can modify or use as an example to implement your own command execution.
