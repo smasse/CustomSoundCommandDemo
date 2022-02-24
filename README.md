@@ -209,10 +209,9 @@ because DC does it's part automatically, without human interaction.
 The demo app includes an example of controls to switch the same app from
 automated to supervised, and vice-versa, by using some toggle buttons.
 
-~~~~~
+# Releases #
     
 ### Release 1 published 2022-2-12 ###
 ### Release 2 published 2022-2-16 ###
 ### Release 3 in progress ###
 Minor improvements such as improved UI, added documentation, code cleanup.
-~~~~~
