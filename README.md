@@ -85,10 +85,8 @@ This may be useful in an authentic sanctuary.
 
 # How To Make Your Own Sound Command Executor App #
 
-<pre>
-Section 1: your app (YSC)
-Section 2: using DC Dolphin Communicator app (DC)
-</pre>
+1. your app (YSC)
+2. using DC Dolphin Communicator app (DC)
 
 ## 1. Your Sound Command App (YSC) ##
 
@@ -102,19 +100,18 @@ The manifest for YSC must have these two elements:
 #### queries clause ####
 <pre>
     &lt;queries&gt;
-        &gt;android:name="sm.app.dc" /&gt;
+        &lt;android:name="sm.app.dc" /&gt;
     &lt;/queries&gt;
 </pre>
 
 #### exported="true" in the receiving activity definition clause ####
 
-Example:
-<pre><code>
+Example:<pre><code>
     &lt;activity
         android:name=".MainActivity"
         android:label="@string/app_name"
         android:exported="true"&gt;
-
+        ...
     &lt;/activity&gt;
 </code></pre>
 
@@ -127,8 +124,7 @@ a participant and recognized by DC.
 The data is in an Intent object sent by DC to the receiving class which is defined in a setting
 in DC (see below).
 
-The Intent sent by DC:
-    <pre><code>
+The Intent sent by DC:<pre><code>
     ComponentName cn = ComponentName.unflattenFromString(appFlattenString);
     Intent intent = new Intent();
     intent.setComponent(cn);
@@ -144,8 +140,7 @@ The Intent sent by DC:
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_APP_ID, appId);
     </code></pre>
 
-The permanent fields:
-<pre><code>
+The permanent fields:<pre><code>
     static final String SOUND_COMMAND_INTENT_EXTRA_TYPE = "sm.app.dc.intent.extra.TYPE";
     static final String SOUND_COMMAND_INTENT_TYPE_FROM_X_VIA_DC = "sound-command-from-x-via-dc";
     static final String SOUND_COMMAND_INTENT_EXTRA_CMD = "sm.app.dc.intent.extra.SOUND_COMMAND";
@@ -177,8 +172,7 @@ be saved in DC database. This may be advantageous. The data set should be simila
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_APP_ID,getClass().getName());
 </code></pre>
 
-The permanent fields:
-<pre><code>
+The permanent fields:<pre><code>
     static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS =
         "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS";
     static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS =
@@ -190,10 +184,9 @@ The permanent fields:
 ## 2. Use of DC ##
 
 You don't need to change the code in DC, but you need to use DC to adapt it to your needs:
-<pre>
-2.1. identify YSC app in a setting in DC, and
-2.2. add one or more sound commands by using the whistle editor in DC.
-</pre>
+
+1. identify YSC app in a setting in DC, and
+2. add one or more sound commands by using the whistle editor in DC.
 
 ### DC Usage 1: Receiver Class Name To Go in DC ###
 
@@ -208,9 +201,9 @@ Example: "io.interspecies.sc/.MainActivity"
 #### DC Usage 2: Custom Sound Command Defined in DC ####
 
 Use the Whistle Menu Item to create one or more sound commands:
-
 1. the name must start with "sc-"
 2. the frequency pattern must _not_ be similar to other sound commands, either hard-coded or not.
+
 
 ## YSC Design Option: Automatic versus Supervised ##
 
