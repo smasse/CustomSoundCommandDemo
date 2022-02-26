@@ -85,20 +85,20 @@ This may be useful in an authentic sanctuary.
 
 # How To Make Your Own Sound Command Executor App #
 
-# Option A: Minimal changes #
+### Option A: Minimal changes ###
 
 - Add your code the this app at line 349
 - Use sound command sc-test as-is
 - Use DC as-is
 - You cannot publish this version of this app on Google Play because of the duplicate package name but you can use this modified app on your device after uninstalling my app.
 
-# Option B: Your own sound command executor app #
+### Option B: Your own sound command executor app ###
 
 1. your own app (YSC) instead of this one,
 2. using DC Dolphin Communicator app (DC), 
    either without changing the source code, or by making your own DC app by forking my DC. 
    
-# Option C: your own DC and SC apps #
+### Option C: your own DC and SC apps ###
 
 This option is not detailed here but it is a possibility 
 as long as the derived app is respecting the license.
