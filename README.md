@@ -85,10 +85,25 @@ This may be useful in an authentic sanctuary.
 
 # How To Make Your Own Sound Command Executor App #
 
-1. your app (YSC)
-2. using DC Dolphin Communicator app (DC)
+# Option A: Minimal changes #
 
-## 1. Your Sound Command App (YSC) ##
+- Add your code the this app at line 349
+- Use sound command sc-test as-is
+- Use DC as-is
+- You cannot publish this version of this app on Google Play because of the duplicate package name but you can use this modified app on your device after uninstalling my app.
+
+# Option B: Your own sound command executor app #
+
+1. your own app (YSC) instead of this one,
+2. using DC Dolphin Communicator app (DC), 
+   either without changing the source code, or by making your own DC app by forking my DC. 
+   
+# Option C: your own DC and SC apps #
+
+This option is not detailed here but it is a possibility 
+as long as the derived app is respecting the license.
+
+## Option B: 1. Your Sound Command App (YSC) ##
 
 Your sound command app must be installed on the same device as DC and comply with these
 requirements.
@@ -175,18 +190,31 @@ The permanent fields:<pre><code>
     static final String SOUND_COMMAND_INTENT_TYPE_RESULTS_TO_DC = "sound-command-results-to-dc";
 </code></pre>
 
-## 2. Use of DC ##
+## Option B: 2. Use of DC Without Code Change ##
 
-You don't need to change the code in DC, but you need to use DC to adapt it to your needs:
+ If you use the same package name for your sound command executor app, 
+ or if you don't send any data to DC, 
+ then you don't need to change the code in DC.
 
-1. identify YSC app in a setting in DC, and
-2. add one or more sound commands by using the whistle editor in DC.
+ The current sound command executor app package used in DC is in line 43 of the manifest:
+ "sm.app.sc.customsoundcommanddemo". 
+ The current version of DC will only accept data from apps using this package name.
+
+ A more generic package will be added to the queries clause in DC manifest 
+ in the next published version of DC so that sound command executor app developers 
+ won't need to modify DC and will be able to send data to DC and to publish their app. 
+ It will be something like "dc.sc.executor". 
+ A specific instance used in your app may be "dc.sc.executor.interspecies" 
+ where "insterspecies" can be defined by you. 
+ I expect that Google Play will accept this package idea but I am not sure until we test it 
+ with two apps using it, 
+ such as with "dc.sc.executor.interspecies" and "dc.sc.executor.waynebatteau".
 
 ### Set the Receiver Class Name in DC ###
 
-Use the setting "SettingCustomSoundCommandExecutorApp" in DC 
-to enter the name of the class in your SC to receive the data.
-It's the first one in the Settings screen.
+Use setting "SettingCustomSoundCommandExecutorApp" in DC 
+ to enter the name of the class in your SC to receive the data.
+ It's the first one in the Settings screen.
 
 The format is &lt;path&gt;/.&lt;classname&gt;
 
