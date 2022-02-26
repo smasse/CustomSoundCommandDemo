@@ -92,7 +92,7 @@ This may be useful in an authentic sanctuary.
 - Use DC as-is
 - You cannot publish this version of this app on Google Play because of the duplicate package name but you can use this modified app on your device after uninstalling my app.
 
-### Option B: Your own sound command executor app ###
+### Option B: Your own sound command executor app - detailed below ###
 
 1. your own app (YSC) instead of this one,
 2. using DC Dolphin Communicator app (DC), 
@@ -203,12 +203,15 @@ The permanent fields:<pre><code>
  A more generic package will be added to the queries clause in DC manifest 
  in the next published version of DC so that sound command executor app developers 
  won't need to modify DC and will be able to send data to DC and to publish their app. 
- It will be something like "dc.sc.executor". 
- A specific instance used in your app may be "dc.sc.executor.interspecies" 
- where "insterspecies" can be defined by you. 
- I expect that Google Play will accept this package idea but I am not sure until we test it 
- with two apps using it, 
- such as with "dc.sc.executor.interspecies" and "dc.sc.executor.waynebatteau".
+ It will be something like "dc.sc.ex" where dc = dolphin communicator, sc = sound command, 
+ and ex = executor. 
+ A specific instance used in your app may be "dc.sc.ex.interspecies" 
+ where "insterspecies" can be defined by you and the main activity could be 
+ dc.sc.ex.interspecies.MainActivity, for example.
+ I expect that Google Play will accept this package idea for multiple apps 
+ from different developers, but we cannot be sure until it is tested with two apps using it, 
+ for example with "dc.sc.ex.interspecies" and "dc.sc.ex.waynebatteau" from two different
+ developer accounts on Google Play.
 
 ### Set the Receiver Class Name in DC ###
 
