@@ -36,10 +36,6 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package sm.app.sc.customsoundcommanddemo;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -59,18 +55,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
+import androidx.appcompat.app.AppCompatActivity;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.List;
-import java.util.prefs.Preferences;
-
 /**
  * This app is designed to demonstrate the execution of a custom sound command from
  * a dolphin (or x-user).
- * It receives from DC messages (Intent instances) containing soundCommand String, date-time, etc.,
- * and sends messages containing results to DC.
+ * It receives, from DC, messages (Intent instances) containing soundCommand String, date-time,
+ * etc., and sends messages containing results to DC. DC then displays the results to h-user.
+ * A third-party instance of such and executor app may not send results to DC, which would be fine.
  *
  * <p>Release 1 = 2022-2-12</p>
  *
@@ -80,19 +75,12 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
     private static final boolean LOG = false; //todo false in prod
-
     /**
      * Value:
-     * <p>
-     * <code>
-     * <!-- sm.app.dc.intent.action.SOUND_COMMAND -->
-     *     "android.intent.action.MAIN"
-     * </code></p>
-     * <p>old value "sm.app.dc.intent.action.SOUND_COMMAND" is replaced by
-     * Intent.ACTION_MAIN and SOUND_COMMAND_INTENT_EXTRA_TYPE</p>
+     * <p><code>"android.intent.action.MAIN"</code></p>
+     * @deprecated not used; kept for possible future use.
      */
     static final String SOUND_COMMAND_INTENT_ACTION = Intent.ACTION_MAIN;
-
     /**
      * values:
      * sound-command-from-x-via-dc
@@ -102,40 +90,38 @@ public class MainActivity extends AppCompatActivity {
     static final String SOUND_COMMAND_INTENT_EXTRA_TYPE = "sm.app.dc.intent.extra.TYPE";
     static final String SOUND_COMMAND_INTENT_TYPE_FROM_X_VIA_DC = "sound-command-from-x-via-dc";
     static final String SOUND_COMMAND_INTENT_TYPE_RESULTS_TO_DC = "sound-command-results-to-dc";
+    /**
+     * for future use: to notify DC that the executor app has received a sound command.
+     */
     static final String SOUND_COMMAND_INTENT_TYPE_ACK_TO_DC = "sound-command-ack-to-dc";
-
     static final String SOUND_COMMAND_INTENT_EXTRA_CMD = "sm.app.dc.intent.extra.SOUND_COMMAND";
+    /**
+     * this SC_ID attribute-value-pair is designed to the included in the results sent to DC.
+     */
+    static final String SOUND_COMMAND_INTENT_EXTRA_SC_ID ="sm.app.dc.intent.extra.SOUND_COMMAND_ID";
     static final String SOUND_COMMAND_INTENT_EXTRA_DATE_STRING =
             "sm.app.dc.intent.extra.SOUND_COMMAND_DATE_STRING";
     static final String SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS =
             "sm.app.dc.intent.extra.SOUND_COMMAND_TIME_MILLIS";
+    /**
+     * @deprecated not used, kept for possible future use
+     */
     static final String SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID =
             "sm.app.dc.intent.extra.SOUND_COMMAND_INSTALLATION_ID";
     static final String SOUND_COMMAND_INTENT_EXTRA_APP_ID =
             "sm.app.dc.intent.extra.SOUND_COMMAND_APP_ID";
-
-    /**
-     * designed to be used by the third party app to send results to DC
-     * <p>old value replaced by Intent.ACTION_MAIN and SOUND_COMMAND_INTENT_EXTRA_TYPE</p>
-     */
-    static final String SOUND_COMMAND_INTENT_ACTION_RESULTS = SOUND_COMMAND_INTENT_ACTION;
-    //old "sm.app.dc.intent.action.SOUND_COMMAND_RESULTS";
     static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS =
             "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS";
     static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS =
             "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS_SUCCESS";
-
     /**
-     * designed to be used by the third party app to send results to DC
-     * <p>old value replaced by Intent.ACTION_MAIN and SOUND_COMMAND_INTENT_EXTRA_TYPE</p>
+     * designed to be used by the third party app to send results to DC;
+     * not used; kept for possible future use.
      */
     static final String SOUND_COMMAND_INTENT_ACTION_RECEPTION_NOTIF = SOUND_COMMAND_INTENT_ACTION;
-    //old "sm.app.dc.intent.action.SOUND_COMMAND_RECEPTION_NOTIF";
 
-    String soundCommandFromX = "";
-
-//    SoundCommandReceiver soundCommandReceiver = null;
-    //IntentFilter intentFilter = null;
+    String soundCommandFromX = "sc-test";
+    String soundCommandId = "";
     TextView textViewCommandData = null;
     TextView textViewExecResults = null;
     EditText editTextManualResults = null;
@@ -153,23 +139,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         try {
             setContentView(R.layout.activity_main2);
-            //toolbar: todo washere washere fix
-//            Toolbar toolbar = findViewById(R.id.sc_toolbar);
-//            setSupportActionBar(toolbar);
-//            ActionBar actionBar = getSupportActionBar();
-//            String appName = "SC DEMO";//getString(getApplicationInfo().labelRes);//getAppName();
-////            if(weAreOnASmallDevice()){
-////                appName = getString(R.string.app_name_shortest);
-////            }
-//            actionBar.setTitle(appName+" v"+getPackageManager().getPackageInfo(
-//                    getPackageName(), 0).versionCode);
-            //end of toolbar
             TextView tv1 = findViewById(R.id.top_view_sc_demo_main);
             if(tv1!=null) {
                 int v = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
                 tv1.setText("v"+v+" "+tv1.getText());
             }
-
             textViewCommandData = findViewById(R.id.textViewCommandData);
             textViewExecResults = findViewById(R.id.textViewResults);
             log = findViewById(R.id.cscd_log_tv);
@@ -237,13 +211,14 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "DC app is _not_ on this device; download it.",
                         Toast.LENGTH_LONG).show();
             }
-
         }catch(Throwable e){
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             writeInLog("buttonSendSuccess listener onClick: " + e + "\n" + sw);
-            Log.e(TAG, "buttonSendSuccess listener onClick: " + e + "\n" + sw);
+            if(LOG) {
+                Log.e(TAG, "buttonSendSuccess listener onClick: " + e + "\n" + sw);
+            }
         }
     }
 
@@ -266,14 +241,14 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG,"receiveSoundCommandWithExplicitIntent" +
                         ": entering with valid Intent action");
             }
+            soundCommandId = intentFromDC.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_SC_ID);
             soundCommandFromX = intentFromDC.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_CMD);
             writeInLog("receiveSoundCommandWithExplicitIntent" +
-                    ": soundCommandFromX = {"+soundCommandFromX+"}");
+                    ": soundCommandFromX = {"+soundCommandFromX+"}"+
+                    " soundCommandId = {"+soundCommandId+"}");
             if(soundCommandFromX==null||soundCommandFromX.length()==0){
                 // anomaly
                 appendToResults("The received msg does not contain a sound command.");
-//                Toast.makeText(this,"The received msg does not contain a sound command.",
-//                        Toast.LENGTH_SHORT).show();
             }else {
                 // ok
                 writeReceivedIntent(intentFromDC, this);
@@ -286,15 +261,12 @@ public class MainActivity extends AppCompatActivity {
             if(LOG) Log.w(TAG,"receiveSoundCommandWithExplicitIntent" +
                     ": start without an Intent from DC; " +
                     "\n action: {"+action+"}"+ "\n msgType: {"+msgType+"}");
-//            Toast.makeText(this, "Msg type not from DC: {"+msgType+"}",
-//                    Toast.LENGTH_SHORT).show();
             appendToResults("Msg type not from DC: {"+msgType+"}");
         }
     }
 
     private void executeSoundCommand(final Intent intentFromDC){
         writeInLog("executeSoundCommand: entering with intentFromDC = {"+intentFromDC+"}");
-        //if(intentFromDC==null)return;
         if(toggleButtonSendImmediately==null){
             writeInLog("defect detected in executeSoundCommand: " +
                     "toggleButtonSendImmediately is null; exiting");
@@ -329,26 +301,27 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Designed to be called on a background thread.
      *
-     * <p>Results may include a list of signals to be emitted by dc:
+     * <p>In future, results may include a list of signals to be emitted by dc:
      * !emit signal1 signal2 signal3...
      * </p>
      */
     private void executeSoundCommandOnBgThread(final Intent intent, final boolean sendImmediately){
         try {
-            String soundCommandFromX = "sc-test";
-            writeInLog("executeSoundCommandOnBgThread: entering with no Intent and " +
-                    "soundCommandFromX = {"+ soundCommandFromX+"}");
             if(intent!=null) {
                 soundCommandFromX = intent.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_CMD);
+                soundCommandId = intent.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_SC_ID);
                 writeInLog("executeSoundCommandOnBgThread: entering with Intent containing " +
-                        "soundCommandFromX = {"+ soundCommandFromX+"}");
+                        "soundCommandFromX = {"+ soundCommandFromX+"}"+
+                        " soundCommandId = {"+soundCommandId+"}");
+            }else{
+                writeInLog("executeSoundCommandOnBgThread: entering with no Intent and " +
+                    "soundCommandFromX = {"+ soundCommandFromX+"}");
             }
+            appendToResults("Starting the execution of sound command {" +
+                    soundCommandFromX + "}.");
 
             //todo write your code here to process the sound command
             // and edit the following statements for your own needs
-
-            appendToResults("Starting the execution of sound command {" +
-                    soundCommandFromX + "}.");
 
             appendToResults("This is demonstration; nothing else is done here." +
                     "The implementer would normally add the custom code here." +
@@ -406,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
             String manualResults = editTextManualResults.getText().toString();
             if(TextUtils.isEmpty(manualResults))manualResults = "(empty)";
             String results = "[\n"+AUTOMATED_RESULTS_LABEL+": " + execResults +
-                    "\n]\n["+MANUAL_RESULTS_LABEL+": " + manualResults+"\n]";
+                    "\n]\n[\n"+MANUAL_RESULTS_LABEL+": " + manualResults+"\n]";
             addExtras(explicit, results, success);
             PackageManager pm = getPackageManager();
             //ComponentName resolved = explicit.resolveActivity(pm);//todo needed???
@@ -421,9 +394,6 @@ public class MainActivity extends AppCompatActivity {
                         "*DC Dolphin Communicator*");
                 return;
             } else {
-//            for (ResolveInfo ri : list) {
-//                writeInConsoleByApp(ri.activityInfo.name);
-//            }
                 try {
                     startActivity(explicit);
                 } catch (ActivityNotFoundException e) {
@@ -434,27 +404,21 @@ public class MainActivity extends AppCompatActivity {
                 writeInLog("The " + s + " results were sent to DC.");
             }
         }catch(Throwable e2){
-//            Toast.makeText(getApplicationContext(), "Anomaly in sendResultsWithExplicitIntent: " +
-//                            e2, Toast.LENGTH_LONG).show();
             writeInLog("Anomaly in sendResultsWithExplicitIntent: " + e2);
         }
     }
 
     void addExtras(final Intent intent, final String results, final boolean success){
-        // soundCommandString, date-time, dc installation id, ...
-//         intent.setAction(SOUND_COMMAND_INTENT_ACTION);
-//         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        intent.setAction(Intent.ACTION_VIEW);//MAIN);//todo washere washere try ACTION_VIEW
-        intent.addCategory(Intent.CATEGORY_DEFAULT);//LAUNCHER);
-        //intent.setType("text/plain");//receivers use "text/*" todo not needed currently
-        //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TYPE,SOUND_COMMAND_INTENT_TYPE_RESULTS_TO_DC);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS,results);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS,""+success);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_CMD,soundCommandFromX);
+        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_SC_ID,soundCommandId);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS,System.currentTimeMillis());
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_DATE_STRING,""+Calendar.getInstance().getTime());
-        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID,"todo");
+//        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID,"to do");
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_APP_ID,getClass().getName());
     }
 
@@ -464,13 +428,14 @@ public class MainActivity extends AppCompatActivity {
      */
     Intent buildIntentForReceptionNotifToDC(){
         Intent intent = new Intent();
-        intent.setAction(SOUND_COMMAND_INTENT_ACTION_RECEPTION_NOTIF);
+        intent.setAction(Intent.ACTION_VIEW);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TYPE,SOUND_COMMAND_INTENT_TYPE_ACK_TO_DC);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_CMD,soundCommandFromX);
+        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_SC_ID,soundCommandId);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS,System.currentTimeMillis());
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_DATE_STRING,""+Calendar.getInstance().getTime());
-        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID,"todo");
+//        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID,"to do");
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_APP_ID,getClass().getName());
         return intent;
     }
@@ -483,19 +448,18 @@ public class MainActivity extends AppCompatActivity {
      */
     void writeReceivedIntent(final Intent intent, final Context context){
         soundCommandFromX = intent.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_CMD);
-//        Toast.makeText(context, "Received sound command {" + soundCommand+"}",
-//                Toast.LENGTH_SHORT).show();
         writeInLog("Received sound command {" + soundCommandFromX+"}");
         String dateString = intent.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_DATE_STRING);
         long timeMillisLong = intent.getLongExtra(SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS,0L);
-        String installationId = intent.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID);
+//        String installationId = intent.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID);
         String appId = intent.getStringExtra(SOUND_COMMAND_INTENT_EXTRA_APP_ID);
         //show reception of sound command from DC in gui
         final String s = "Sound command received = {" + soundCommandFromX + "}" +
-                "\n\ndateString = {" + dateString + "}" +
-                "\n\ntimeMillisLong = " + timeMillisLong +
-                "\n\ninstallationId = {" + installationId + "}" +
-                "\n\nappId = {" + appId + "}";
+                "\n\nsound command id = {"+soundCommandId+"}"+
+                "\n\ndate = {" + dateString + "}" +
+                "\n\ntime ms = " + timeMillisLong +
+//                "\n\ninstallation id = {" + installationId + "}" +
+                "\n\napp id = {" + appId + "}";
         if(textViewCommandData !=null) {
             textViewCommandData.post(new Runnable() {
                 @Override
@@ -504,14 +468,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }else{
-//            if(LOG){
-//                Log.w(TAG,"writeReceivedIntent(2-args): textViewCommandData is null");
-//            }
             writeInLog("writeReceivedIntent(2-args): textViewCommandData is null");
         }
     }
-
-//    String textViewCommandText = "(not set)";
 
     /**
      * Designed to be called by the method that executes the sound command, for example
@@ -531,15 +490,24 @@ public class MainActivity extends AppCompatActivity {
                         textViewExecResults.setText(prev + "\n~~~~~\n" + text);
                     }
                 }else{
-//                    if(LOG){
-//                        Log.w(TAG,"appendToResults(1-arg): editTextResults is null");
-//                    }
-                    writeInLog("appendToResults(1-arg): editTextResults is null");
+                    writeInLog("appendToResults(1-arg): anomaly textViewExecResults is null");
                 }
             }
         });
     }
 
+    void clearResults(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(textViewExecResults==null){
+                    writeInLog("clearResults(): anomaly textViewExecResults is null");
+                    return;
+                }
+                textViewExecResults.setText("");
+            }
+        });
+    }
 
     /**
      * works also when called on a bg thread.
@@ -618,8 +586,6 @@ public class MainActivity extends AppCompatActivity {
         writeInLog("onResume: starting with: " +
                         "\n EXECUTE_IMMEDIATELY_DEFAULT = "+ EXECUTE_IMMEDIATELY_DEFAULT+
                         "\n SEND_IMMEDIATELY_DEFAULT = "+SEND_IMMEDIATELY_DEFAULT
-//                "\n toggleButtonExecuteImmediately.isChecked() = "+toggleButtonExecuteImmediately.isChecked()+
-//                "\n toggleButtonSendImmediately.isChecked() = "+toggleButtonSendImmediately.isChecked()
         );
         restorePreferences();
         writeInLog("onResume: restored preferences:"+
@@ -628,6 +594,7 @@ public class MainActivity extends AppCompatActivity {
                 "\n toggleButtonSendImmediately.isChecked() = " +
                 toggleButtonSendImmediately.isChecked()
         );
+        clearResults();
         receiveSoundCommandWithExplicitIntent();
     }
     protected void onPause(){
@@ -642,5 +609,4 @@ public class MainActivity extends AppCompatActivity {
         savePreferences();
         super.onDestroy();
     }
-
 }

@@ -87,7 +87,7 @@ This may be useful in an authentic sanctuary.
 
 ### Option A: Minimal changes ###
 
-- Add your code the this app at line 349
+- Add your code the this app at line 323 in MainActivity
 - Use sound command sc-test as-is
 - Use DC as-is
 - You cannot publish this version of this app on Google Play because of the duplicate package name but you can use this modified app on your device after uninstalling my app.
@@ -152,7 +152,6 @@ The Intent sent by DC:<pre><code>
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS,System.currentTimeMillis());
     //date-time string
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_DATE_STRING,""+Calendar.getInstance().getTime());
-    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID, Installation.getID());
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_APP_ID, appId);
     </code></pre>
 
@@ -162,7 +161,6 @@ The permanent fields:<pre><code>
     static final String SOUND_COMMAND_INTENT_EXTRA_CMD = "sm.app.dc.intent.extra.SOUND_COMMAND";
     static final String SOUND_COMMAND_INTENT_EXTRA_DATE_STRING = "sm.app.dc.intent.extra.SOUND_COMMAND_DATE_STRING";
     static final String SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS = "sm.app.dc.intent.extra.SOUND_COMMAND_TIME_MILLIS";
-    static final String SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID = "sm.app.dc.intent.extra.SOUND_COMMAND_INSTALLATION_ID";
     static final String SOUND_COMMAND_INTENT_EXTRA_APP_ID = "sm.app.dc.intent.extra.SOUND_COMMAND_APP_ID";
 </code></pre>
 
@@ -179,6 +177,7 @@ be saved in DC database. This may be advantageous. The data set should be simila
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS,results);
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS,""+success);
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_CMD,soundCommandFromX);
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_SC_ID,soundCommandId);
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS,System.currentTimeMillis());
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_DATE_STRING,""+Calendar.getInstance().getTime());
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_APP_ID,getClass().getName());
