@@ -58,6 +58,7 @@ import android.widget.ToggleButton;
 import androidx.appcompat.app.AppCompatActivity;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 /**
@@ -531,16 +532,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    private boolean firstLogLineInSession = true;
     private String getDateTimePrefixForLog() {
-        final Calendar cal = Calendar.getInstance();// TimeZone.getTimeZone("GMT"));
-//        final String millisFormat = AcousticLibConfig.getIt().isShowMillisInTimeInConsoleEnabled()
-//                ? ".SSS" : "";
-        final String millisFormat = "";
-        CharSequence time = DateFormat.format("yyyy-MM-dd hh:mm:ss" + millisFormat,
-                cal.getTimeInMillis());// +" GMT";
-        return time.toString();
+        if(firstLogLineInSession) {
+            firstLogLineInSession = false;
+            return getDateTimeShort(System.currentTimeMillis());
+        }else{
+            return getTimeShort(System.currentTimeMillis());
+        }
     }
-
+    static String getDateTimeShort(final long millis){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(millis);
+    }
+    static String getTimeShort(final long millis){
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        return sdf.format(millis);
+    }
 
     //============== preferences ==============
 
