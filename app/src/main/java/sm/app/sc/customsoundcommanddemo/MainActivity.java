@@ -380,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
             String manualResults = editTextManualResults.getText().toString();
             if(TextUtils.isEmpty(manualResults))manualResults = "(empty)";
             String results = "[\n"+AUTOMATED_RESULTS_LABEL+": " + execResults +
-                    "\n]\n[\n"+MANUAL_RESULTS_LABEL+": " + manualResults+"\n]";
+                    "\n][\n"+MANUAL_RESULTS_LABEL+": " + manualResults+"\n]";
             addExtras(explicit, results, success);
             PackageManager pm = getPackageManager();
             //ComponentName resolved = explicit.resolveActivity(pm);//todo needed???
