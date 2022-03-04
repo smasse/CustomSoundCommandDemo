@@ -87,21 +87,23 @@ This may be useful in an authentic sanctuary.
 
 ### Option A: Minimal changes ###
 
-- Add your code the this app at line 323 in MainActivity
+- Add your code the this app at line 327 in MainActivity
 - Use sound command sc-test as-is
 - Use DC as-is
-- You cannot publish this version of this app on Google Play because of the duplicate package name but you can use this modified app on your device after uninstalling my app.
+- You cannot publish this version of this app on Google Play because of the duplicate package name 
+  but you can use this modified app on your device after uninstalling my Demo app.
 
 ### Option B: Your own sound command executor app - detailed below ###
 
-1. your own app (YSC) instead of this one,
+1. your own app (YSC) instead of this one (more below),
 2. using DC Dolphin Communicator app (DC), 
-   either without changing the source code, or by making your own DC app by forking my DC. 
+   either without changing the source code, or by making your own DC app by forking my DC
+   from GitLab. 
    
 ### Option C: your own DC and SC apps ###
 
 This option is not detailed here but it is a possibility 
-as long as the derived app is respecting the license.
+as long as the derived app is respecting the license. No more details in this text.
 
 ## Option B: 1. Your Sound Command App (YSC) ##
 
@@ -148,6 +150,7 @@ The Intent sent by DC:<pre><code>
     intent.addCategory(Intent.CATEGORY_DEFAULT);
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TYPE,SOUND_COMMAND_INTENT_TYPE_FROM_X_VIA_DC);
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_CMD,soundCommandString);
+    intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_SC_ID,soundCommandId);
     //date-time millis
     intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS,System.currentTimeMillis());
     //date-time string
@@ -159,6 +162,7 @@ The permanent fields:<pre><code>
     static final String SOUND_COMMAND_INTENT_EXTRA_TYPE = "sm.app.dc.intent.extra.TYPE";
     static final String SOUND_COMMAND_INTENT_TYPE_FROM_X_VIA_DC = "sound-command-from-x-via-dc";
     static final String SOUND_COMMAND_INTENT_EXTRA_CMD = "sm.app.dc.intent.extra.SOUND_COMMAND";
+    static final String SOUND_COMMAND_INTENT_EXTRA_SC_ID ="sm.app.dc.intent.extra.SOUND_COMMAND_ID";
     static final String SOUND_COMMAND_INTENT_EXTRA_DATE_STRING = "sm.app.dc.intent.extra.SOUND_COMMAND_DATE_STRING";
     static final String SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS = "sm.app.dc.intent.extra.SOUND_COMMAND_TIME_MILLIS";
     static final String SOUND_COMMAND_INTENT_EXTRA_APP_ID = "sm.app.dc.intent.extra.SOUND_COMMAND_APP_ID";
@@ -195,20 +199,21 @@ The permanent fields:<pre><code>
  or if you don't send any data to DC, 
  then you don't need to change the code in DC.
 
- The current sound command executor app package used in DC is in line 43 of the manifest:
- "sm.app.sc.customsoundcommanddemo". 
- The current version of DC will only accept data from apps using this package name.
+ The current sound command executor demo app package used in DC is in line 44 of the manifest:
+ "sm.app.sc".
+ DC also defines the package of another sound command executor app in the manifest:
+ "dc.sc.ex".
+ The current version of DC will only accept data from apps using one these two package names.
 
- A more generic package will be added to the queries clause in DC manifest 
- in the next published version of DC so that sound command executor app developers 
- won't need to modify DC and will be able to send data to DC and to publish their app. 
- It will be something like "dc.sc.ex" where dc = dolphin communicator, sc = sound command, 
+ The second package is a more generic one that will allow sound command executor app developers 
+ to not need to modify DC and will be able to send data to DC and to publish their app. 
+ It is "dc.sc.ex" where dc = dolphin communicator, sc = sound command, 
  and ex = executor. 
- A specific instance used in your app may be "dc.sc.ex.interspecies" 
- where "insterspecies" can be defined by you and the main activity could be 
- dc.sc.ex.interspecies.MainActivity, for example.
- I expect that Google Play will accept this package idea for multiple apps 
- from different developers, but we cannot be sure until it is tested with two apps using it, 
+ Your app may use a full class name such as "dc.sc.ex.interspecies.MainActivity" 
+ where "insterspecies" can be defined by you, for example.
+ One of may executor apps uses "dc.sc.ex.jcl.MainActivity".
+ Google Play should accept this package idea for multiple apps 
+ from different developers, 
  for example with "dc.sc.ex.interspecies" and "dc.sc.ex.waynebatteau" from two different
  developer accounts on Google Play.
 
@@ -220,7 +225,7 @@ Use setting "SettingCustomSoundCommandExecutorApp" in DC
 
 The format is &lt;path&gt;/.&lt;classname&gt;
 
-Example: "io.interspecies.sc/.MainActivity"
+Example: "dc.sc.ex.interspecies/.MainActivity"
 
 #### Set the Custom Sound Command(s) in DC ####
 
