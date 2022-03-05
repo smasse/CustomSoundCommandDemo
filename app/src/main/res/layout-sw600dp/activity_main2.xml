@@ -47,17 +47,6 @@
     android:id="@+id/root_sc_main"
     android:layout_margin="5dip"
     android:orientation="vertical">
-    <!--<com.google.android.material.appbar.AppBarLayout todo washere washere fix
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/sc_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-            </com.google.android.material.appbar.AppBarLayout>-->
     <TextView
         android:id="@+id/top_view_sc_demo_main"
         android:layout_width="fill_parent"

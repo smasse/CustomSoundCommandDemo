@@ -77,12 +77,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
     private static final boolean LOG = false; //todo false in prod
     /**
-     * Value:
-     * <p><code>"android.intent.action.MAIN"</code></p>
-     * @deprecated not used; kept for possible future use.
-     */
-    static final String SOUND_COMMAND_INTENT_ACTION = Intent.ACTION_MAIN;
-    /**
      * values:
      * sound-command-from-x-via-dc
      * sound-command-results-to-dc
@@ -115,11 +109,6 @@ public class MainActivity extends AppCompatActivity {
             "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS";
     static final String SOUND_COMMAND_INTENT_EXTRA_RESULTS_SUCCESS =
             "sm.app.dc.intent.extra.SOUND_COMMAND_RESULTS_SUCCESS";
-    /**
-     * designed to be used by the third party app to send results to DC;
-     * not used; kept for possible future use.
-     */
-    static final String SOUND_COMMAND_INTENT_ACTION_RECEPTION_NOTIF = SOUND_COMMAND_INTENT_ACTION;
 
     String soundCommandFromX = "sc-test";
     String soundCommandId = "";
@@ -169,10 +158,10 @@ public class MainActivity extends AppCompatActivity {
                         StringWriter sw = new StringWriter();
                         PrintWriter pw = new PrintWriter(sw);
                         e.printStackTrace(pw);
-                        writeInLog("buttonSendSuccess listener onClick: " + e + "\n" + sw.toString());
-                        Log.e(TAG, "buttonSendSuccess listener onClick: " + e + "\n" + sw.toString());
+                        writeInLog("buttonSendSuccess listener onClick: " + e + "\n" + sw);
+                        Log.e(TAG, "buttonSendSuccess listener onClick: " + e + "\n" + sw);
                         appendToResults("buttonSendSuccess listener onClick: anomaly = " + e
-                                + "\n" + sw.toString());
+                                + "\n" + sw);
                     }
                 }
             });
@@ -186,19 +175,14 @@ public class MainActivity extends AppCompatActivity {
                         StringWriter sw = new StringWriter();
                         PrintWriter pw = new PrintWriter(sw);
                         e.printStackTrace(pw);
-                        Log.e(TAG, "buttonSendFailure listener onClick: " + e + "\n" + sw.toString());
+                        Log.e(TAG, "buttonSendFailure listener onClick: " + e + "\n" + sw);
                         appendToResults("buttonSendFailure listener onClick: anomaly = " + e
-                                + "\n" + sw.toString());
+                                + "\n" + sw);
                     }
                 }
             });
             buttonExecute = findViewById(R.id.buttonExecute);
-            buttonExecute.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    executeSoundCommand(intentFromDC);
-                }
-            });
+            buttonExecute.setOnClickListener(v -> executeSoundCommand(intentFromDC));
             toggleButtonExecuteImmediately = findViewById(R.id.toggleButtonExecuteImmediately);
             toggleButtonSendImmediately = findViewById(R.id.toggleButtonSendImmediately);
 
@@ -462,12 +446,7 @@ public class MainActivity extends AppCompatActivity {
 //                "\n\ninstallation id = {" + installationId + "}" +
                 "\n\napp id = {" + appId + "}";
         if(textViewCommandData !=null) {
-            textViewCommandData.post(new Runnable() {
-                @Override
-                public void run() {
-                    textViewCommandData.setText(s);
-                }
-            });
+            textViewCommandData.post(() -> textViewCommandData.setText(s));
         }else{
             writeInLog("writeReceivedIntent(2-args): textViewCommandData is null");
         }
@@ -483,30 +462,27 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(textViewExecResults!=null) {
+                if (textViewExecResults != null) {
                     String prev = textViewExecResults.getText().toString();
-                    if(TextUtils.isEmpty(prev)){
+                    if (TextUtils.isEmpty(prev)) {
                         textViewExecResults.setText(text);
-                    }else {
+                    } else {
                         textViewExecResults.setText(prev + "\n~~~~~\n" + text);
                     }
-                }else{
-                    writeInLog("appendToResults(1-arg): anomaly textViewExecResults is null");
+                } else {
+                    MainActivity.this.writeInLog("appendToResults(1-arg): anomaly textViewExecResults is null");
                 }
             }
         });
     }
 
     void clearResults(){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(textViewExecResults==null){
-                    writeInLog("clearResults(): anomaly textViewExecResults is null");
-                    return;
-                }
-                textViewExecResults.setText("");
+        runOnUiThread(() -> {
+            if(textViewExecResults==null){
+                writeInLog("clearResults(): anomaly textViewExecResults is null");
+                return;
             }
+            textViewExecResults.setText("");
         });
     }
 
@@ -517,19 +493,16 @@ public class MainActivity extends AppCompatActivity {
      */
     private void writeInLog(final String text){
         if(log==null)return;
-        log.post(new Runnable() {
-            @Override
-            public void run() {
-                CharSequence l = log.getText();
-                if(l==null) l = "";
-                String s = "";
-                if(TextUtils.isEmpty(l)){
-                    s = getDateTimePrefixForLog()+": "+text;
-                }else{
-                    s = l +"\n"+getDateTimePrefixForLog()+": "+text;
-                }
-                log.setText(s);
+        log.post(() -> {
+            CharSequence l = log.getText();
+            if(l==null) l = "";
+            String s = "";
+            if(TextUtils.isEmpty(l)){
+                s = getDateTimePrefixForLog()+": "+text;
+            }else{
+                s = l +"\n"+getDateTimePrefixForLog()+": "+text;
             }
+            log.setText(s);
         });
     }
     private boolean firstLogLineInSession = true;

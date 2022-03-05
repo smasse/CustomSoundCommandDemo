@@ -1,4 +1,4 @@
-# SoundCommandApps #
+# SoundCommandApps for Demo #
 
 GitLab project SoundCommandApps contains applications to execute sound commands from dolphins 
 or other participants via DC Dolphin Communicator app.
