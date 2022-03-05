@@ -36,6 +36,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package sm.app.sc.customsoundcommanddemo;
+
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -46,7 +47,6 @@ import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -55,7 +55,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
@@ -308,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
             //todo write your code here to process the sound command
             // and edit the following statements for your own needs
 
-            appendToResults("This is demonstration; nothing else is done here." +
+            appendToResults("This is a demonstration; nothing else is done here." +
                     "The implementer would normally add the custom code here." +
                     " This could be, for example, to execute a program" +
                     ", or to send an http request to a web address" +
