@@ -114,7 +114,7 @@ requirements.
 
 The manifest for YSC must have these two elements:
 
-#### queries clause, in the manifest clause ####
+#### queries clause, in the manifest clause of your executor app ####
 <pre><code>
     &lt;queries&gt;
         &lt;android:name="sm.app.dc" /&gt;
@@ -199,23 +199,16 @@ The permanent fields:<pre><code>
  or if you don't send any data to DC, 
  then you don't need to change the code in DC.
 
- The current sound command executor demo app package used in DC is in line 44 of the manifest:
- "sm.app.sc".
+ The current sound command executor demo app package used in DC is in line 43 of the DC manifest:
+ "sm.app.sc.customsoundcommanddemo".
  DC also defines the package of another sound command executor app in the manifest:
- "dc.sc.ex".
+ "dc.sc.ex.jcl".
  The current version of DC will only accept data from apps using one these two package names.
-
- The second package is a more generic one that will allow sound command executor app developers 
- to not need to modify DC and will be able to send data to DC and to publish their app. 
- It is "dc.sc.ex" where dc = dolphin communicator, sc = sound command, 
- and ex = executor. 
- Your app may use a full class name such as "dc.sc.ex.interspecies.MainActivity" 
- where "insterspecies" can be defined by you, for example.
- One of may executor apps uses "dc.sc.ex.jcl.MainActivity".
- Google Play should accept this package idea for multiple apps 
- from different developers, 
- for example with "dc.sc.ex.interspecies" and "dc.sc.ex.waynebatteau" from two different
- developer accounts on Google Play.
+ Future versions of DC could use package names of other apps if such are requested.
+ 
+ Recent versions of Android seem to require full package names in the queries clause 
+ and therefore customized 
+ executor apps with unique package names will require additional queries clauses in DC manifest.
 
 ### Set the Receiver Class Name in DC ###
 
@@ -225,7 +218,7 @@ Use setting "SettingCustomSoundCommandExecutorApp" in DC
 
 The format is &lt;path&gt;/.&lt;classname&gt;
 
-Example: "dc.sc.ex.interspecies/.MainActivity"
+Example: "dc.sc.ex.jcl/.MainActivity"
 
 #### Set the Custom Sound Command(s) in DC ####
 

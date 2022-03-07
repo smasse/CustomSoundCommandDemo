@@ -404,7 +404,8 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_CMD,soundCommandFromX);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_SC_ID,soundCommandId);
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_TIME_MILLIS,System.currentTimeMillis());
-        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_DATE_STRING,""+Calendar.getInstance().getTime());
+        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_DATE_STRING,
+                ""+Calendar.getInstance().getTime());
 //        intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_INSTALLATION_ID,"to do");
         intent.putExtra(SOUND_COMMAND_INTENT_EXTRA_APP_ID,getClass().getName());
     }
