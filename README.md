@@ -241,5 +241,5 @@ automated to supervised, and vice-versa, by using some toggle buttons.
     
 ### Release 1 published 2022-2-12 ###
 ### Release 2 published 2022-2-16 ###
-### Release 3 in progress ###
+### Release 3 published 2022-3-7 ###
 Minor improvements such as improved UI, added documentation, code cleanup.
